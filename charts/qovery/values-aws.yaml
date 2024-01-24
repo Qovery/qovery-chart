@@ -442,13 +442,13 @@ metrics-server:
     create: true
   # set rolling restart strategy
   updateStrategy:
-    type: set-by-customer
+    type: RollingUpdate # set-by-customer
   # set resources
   resources:
     limits:
-      cpu: set-by-customer
-      memory: set-by-customer
+      cpu: 250m # set-by-customer
+      memory: 64Mi # set-by-customer
     requests:
-      cpu: set-by-customer
-      memory: set-by-customer
+      cpu: 250m # set-by-customer
+      memory: 64Mi # set-by-customer
   

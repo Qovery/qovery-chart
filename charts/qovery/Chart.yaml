@@ -3,59 +3,59 @@ name: qovery
 description: Qovery Helm chart - self managed version
 dependencies:
 - name: q-storageclass-aws
-  condition: aws.q-storageclass-aws.enabled
+  condition: services.aws.q-storageclass-aws.enabled
   version: 0.1.0
   repository: file://charts/q-storageclass-aws
 - name: q-storageclass-gcp
-  condition: gcp.q-storageclass-gcp.enabled
+  condition: services.gcp.q-storageclass-gcp.enabled
   version: 0.1.0
   repository: file://charts/q-storageclass-gcp
 - name: q-storageclass-scaleway
-  condition: gcp.q-storageclass-scaleway.enabled
+  condition: services.gcp.q-storageclass-scaleway.enabled
   version: 0.1.0
   repository: file://charts/q-storageclass-scaleway
 - name: ingress-nginx
-  condition: ingress.ingress-nginx.enabled
+  condition: services.ingress.ingress-nginx.enabled
   version: 4.8.3
   repository: file://charts/ingress-nginx
 - name: external-dns
-  condition: dns.external-dns.enabled
+  condition: services.dns.external-dns.enabled
   version: 6.17.0
   repository: file://charts/external-dns
 - name: promtail
-  condition: logging.promtail.enabled
+  condition: services.logging.promtail.enabled
   version: 6.15.3
   repository: file://charts/promtail
 - name: loki
-  condition: logging.loki.enabled
+  condition: services.logging.loki.enabled
   version: 5.41.4
   repository: file://charts/loki
 - name: cert-manager
-  condition: certificates.cert-manager.enabled
+  condition: services.certificates.cert-manager.enabled
   version: v1.13.3
   repository: file://charts/cert-manager
 - name: cert-manager-configs
-  condition: certificates.cert-manager-configs.enabled
+  condition: services.certificates.cert-manager-configs.enabled
   version: 0.1.0
   repository: file://charts/cert-manager-configs
 - name: qovery-cert-manager-webhook
-  condition: certificates.qovery-cert-manager-webhook.enabled
+  condition: services.certificates.qovery-cert-manager-webhook.enabled
   version: 0.1.15
   repository: file://charts/qovery-cert-manager-webhook
 - name: metrics-server
-  condition: observability.metrics-server.enabled
+  condition: services.observability.metrics-server.enabled
   version: 3.11.0
   repository: file://charts/metrics-server
 - name: qovery-cluster-agent
-  condition: qovery.qovery-cluster-agent.enabled
+  condition: services.qovery.qovery-cluster-agent.enabled
   version: 0.1.0
   repository: file://charts/qovery-cluster-agent
 - name: qovery-shell-agent
-  condition: qovery.qovery-shell-agent.enabled
+  condition: services.qovery.qovery-shell-agent.enabled
   version: 0.1.0
   repository: file://charts/qovery-shell-agent
 - name: qovery-engine
-  condition: qovery.qovery-engine.enabled
+  condition: services.qovery.qovery-engine.enabled
   version: 0.1.0
   repository: file://charts/qovery-engine
 type: application
