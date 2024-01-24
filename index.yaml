@@ -1,0 +1,74 @@
+apiVersion: v1
+entries:
+  qovery:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-01-24T15:33:17.924050202Z"
+    dependencies:
+    - condition: services.aws.q-storageclass-aws.enabled
+      name: q-storageclass-aws
+      repository: file://charts/q-storageclass-aws
+      version: 0.1.0
+    - condition: services.gcp.q-storageclass-gcp.enabled
+      name: q-storageclass-gcp
+      repository: file://charts/q-storageclass-gcp
+      version: 0.1.0
+    - condition: services.gcp.q-storageclass-scaleway.enabled
+      name: q-storageclass-scaleway
+      repository: file://charts/q-storageclass-scaleway
+      version: 0.1.0
+    - condition: services.ingress.ingress-nginx.enabled
+      name: ingress-nginx
+      repository: file://charts/ingress-nginx
+      version: 4.8.3
+    - condition: services.dns.external-dns.enabled
+      name: external-dns
+      repository: file://charts/external-dns
+      version: 6.17.0
+    - condition: services.logging.promtail.enabled
+      name: promtail
+      repository: file://charts/promtail
+      version: 6.15.3
+    - condition: services.logging.loki.enabled
+      name: loki
+      repository: file://charts/loki
+      version: 5.41.4
+    - condition: services.certificates.cert-manager.enabled
+      name: cert-manager
+      repository: file://charts/cert-manager
+      version: v1.13.3
+    - condition: services.certificates.cert-manager-configs.enabled
+      name: cert-manager-configs
+      repository: file://charts/cert-manager-configs
+      version: 0.1.0
+    - condition: services.certificates.qovery-cert-manager-webhook.enabled
+      name: qovery-cert-manager-webhook
+      repository: file://charts/qovery-cert-manager-webhook
+      version: 0.1.15
+    - condition: services.observability.metrics-server.enabled
+      name: metrics-server
+      repository: file://charts/metrics-server
+      version: 3.11.0
+    - condition: services.qovery.qovery-cluster-agent.enabled
+      name: qovery-cluster-agent
+      repository: file://charts/qovery-cluster-agent
+      version: 0.1.0
+    - condition: services.qovery.qovery-shell-agent.enabled
+      name: qovery-shell-agent
+      repository: file://charts/qovery-shell-agent
+      version: 0.1.0
+    - condition: services.qovery.qovery-engine.enabled
+      name: qovery-engine
+      repository: file://charts/qovery-engine
+      version: 0.1.0
+    description: Qovery Helm chart - self managed version
+    digest: 8f5d14c19ded715759e99bd15f76e138af5b6474e90b63be3542e4916ad9ba2e
+    home: https://www.qovery.com/
+    icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
+    kubeVersion: "1.26"
+    name: qovery
+    type: application
+    urls:
+    - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
+    version: 1.0.0
+generated: "2024-01-24T15:33:17.880396308Z"
