@@ -1,0 +1,16 @@
+name: helm-chart
+on:
+  push:
+    branches: ['main']
+    paths:
+      - charts/**
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
