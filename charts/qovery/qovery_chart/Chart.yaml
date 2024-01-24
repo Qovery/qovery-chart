@@ -1,0 +1,66 @@
+apiVersion: v2
+name: qovery
+description: Qovery Helm chart - self managed version
+dependencies:
+- name: q-storageclass-aws
+  condition: aws.q-storageclass-aws.enabled
+  version: 0.1.0
+  repository: file://charts/q-storageclass-aws
+- name: q-storageclass-gcp
+  condition: gcp.q-storageclass-gcp.enabled
+  version: 0.1.0
+  repository: file://charts/q-storageclass-gcp
+- name: q-storageclass-scaleway
+  condition: gcp.q-storageclass-scaleway.enabled
+  version: 0.1.0
+  repository: file://charts/q-storageclass-scaleway
+- name: ingress-nginx
+  condition: ingress.ingress-nginx.enabled
+  version: 4.8.3
+  repository: file://charts/ingress-nginx
+- name: external-dns
+  condition: dns.external-dns.enabled
+  version: 6.17.0
+  repository: file://charts/external-dns
+- name: promtail
+  condition: logging.promtail.enabled
+  version: 6.15.3
+  repository: file://charts/promtail
+- name: loki
+  condition: logging.loki.enabled
+  version: 5.41.4
+  repository: file://charts/loki
+- name: cert-manager
+  condition: certificates.cert-manager.enabled
+  version: v1.13.3
+  repository: file://charts/cert-manager
+- name: cert-manager-configs
+  condition: certificates.cert-manager-configs.enabled
+  version: 0.1.0
+  repository: file://charts/cert-manager-configs
+- name: qovery-cert-manager-webhook
+  condition: certificates.qovery-cert-manager-webhook.enabled
+  version: 0.1.15
+  repository: file://charts/qovery-cert-manager-webhook
+- name: metrics-server
+  condition: observability.metrics-server.enabled
+  version: 3.11.0
+  repository: file://charts/metrics-server
+- name: qovery-cluster-agent
+  condition: qovery.qovery-cluster-agent.enabled
+  version: 0.1.0
+  repository: file://charts/qovery-cluster-agent
+- name: qovery-shell-agent
+  condition: qovery.qovery-shell-agent.enabled
+  version: 0.1.0
+  repository: file://charts/qovery-shell-agent
+- name: qovery-engine
+  condition: qovery.qovery-engine.enabled
+  version: 0.1.0
+  repository: file://charts/qovery-engine
+type: application
+version: 1.0.0
+appVersion: 1.0.0
+kubeVersion: '1.26'
+home: https://www.qovery.com/
+icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg

@@ -1,0 +1,240 @@
+services:
+  qovery:
+    qovery-cluster-agent:
+      enabled: true
+    qovery-shell-agent:
+      enabled: true
+    qovery-engine:
+      enabled: false
+  ingress:
+    ingress-nginx:
+      enabled: true
+  dns:
+    external-dns:
+      enabled: true
+  logging:
+    loki:
+      enabled: true
+    promtail:
+      enabled: true
+  certificates:
+    cert-manager:
+      enabled: true
+    cert-manager-configs:
+      enabled: true
+    qovery-cert-manager-webhook:
+      enabled: true
+  observability:
+    metrics-server:
+      enabled: true
+  aws:
+    q-storageclass-aws:
+      enabled: true
+qovery:
+  clusterId: &clusterId set-by-customer
+  clusterShortId: &clusterShortId set-by-customer
+  organizationId: &organizationId set-by-customer
+  jwtToken: &jwtToken set-by-customer
+  domain: &domain set-by-customer
+  domainWildcard: &domainWildcard set-by-customer
+  grpcServer: &grpcServer set-by-customer
+  engineGrpcServer: &engineGrpcServer set-by-customer
+  qoveryDnsUrl: &qoveryDnsUrl set-by-customer
+  lokiUrl: &lokiUrl set-by-customer
+  promtailLokiUrl: &promtailLokiUrl set-by-customer
+  acmeEmailAddr: &acmeEmailAddr set-by-customer
+  externalDnsPrefix: &externalDnsPrefix set-by-customer
+  architectures: &architectures set-by-customer
+qovery-cluster-agent:
+  fullNameOverride: qovery-shell-agent
+  image:
+    tag: latest
+  environmentVariables:
+    CLUSTER_ID: *clusterId
+    CLUSTER_JWT_TOKEN: *jwtToken
+    GRPC_SERVER: *grpcServer
+    LOKI_URL: *lokiUrl
+    ORGANIZATION_ID: *organizationId
+qovery-shell-agent:
+  fullNameOverride: qovery-shell-agent
+  image:
+    tag: latest
+  environmentVariables:
+    CLUSTER_ID: *clusterId
+    CLUSTER_JWT_TOKEN: *jwtToken
+    GRPC_SERVER: *grpcServer
+    ORGANIZATION_ID: *organizationId
+ingress-nginx:
+  controller:
+    useComponentLabel: true
+    admissionWebhooks:
+      enabled: false # set-by-customer
+    # enable if you want metrics scrapped by prometheus
+    metrics:
+      enabled: true # set-by-customer
+      serviceMonitor:
+        enabled: false # set-by-customer
+    config:
+      # set global default file size limit to 100m
+      proxy-body-size: 100m
+      # hide Nginx version
+      server-tokens: "false"
+    # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
+    ingressClass: nginx-qovery
+    extraArgs:
+      # Kubernetes path of the default Cert-manager TLS certificate (if used)
+      default-ssl-certificate: "cert-manager/letsencrypt-acme-qovery-cert"
+    updateStrategy:
+      rollingUpdate:
+        # set the minimum acceptable number of unavailable pods during a rolling update
+        maxUnavailable: 1
+    # enable auoscaling if you want to scale the number of replicas based on CPU usage
+    autoscaling:
+      enabled: false # set-by-customer
+      minReplicas: 2 # set-by-customer
+      maxReplicas: 25 # set-by-customer
+      targetCPUUtilizationPercentage: 50  # set-by-customer
+    # required if you rely on a load balancer
+    # the controller mirrors the address of this service's endpoints to the load-balancer status of all Ingress objects it satisfies.
+    publishService:
+      enabled: true
+    # set a load balancer if you want your Nginx to be publicly accessible
+    service:
+      enabled: true
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        # Qovery managed DNS requieres *.$domain (something like: *.<cluster_id>.<given_dns_name>)
+        external-dns.alpha.kubernetes.io/hostname: *domainWildcard
+      externalTrafficPolicy: "Local"
+      sessionAffinity: ""
+      healthCheckNodePort: 0
+  
+external-dns:
+  fullnameOverride: external-dns
+  provider: pdns
+  domainFilters: [*domain]
+  txtOwnerId: *shortClusterId
+  txtPrefix: *externalDnsPrefix
+  pdns:
+    apiUrl: *qoveryDnsUrl
+    apiKey: *jwtToken
+    apiPort: 443
+promtail:
+  fullnameOverride: promtail
+  namespace: kube-system
+  priorityClassName: system-node-critical
+  config:
+    clients:
+      - url: *promtailLokiUrl
+    snippets:
+      extraRelabelConfigs:
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(qovery_com_service_id|qovery_com_service_type|qovery_com_environment_id)
+loki:
+  fullnameOverride: loki
+  loki:
+    auth_enabled: false
+    ingester:
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+    schema_config:
+      configs:
+        - from: 2020-05-15
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+  monitoring:
+    dashboards:
+      enabled: false
+    rules:
+      enabled: false
+    serviceMonitor:
+      enabled: false
+      metricsInstance:
+        enabled: false
+    selfMonitoring:
+      enabled: false
+      grafanaAgent:
+        installOperator: false
+    grafanaAgent:
+      enabled: false
+    lokiCanary:
+      enabled: false
+  test:
+    enabled: false
+  gateway:
+    enabled: false
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: false
+    extraVolumes:
+      - name: data
+        emptyDir: {}
+      - name: storage
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: data
+        mountPath: /data
+      - name: storage
+        mountPath: /var/loki
+cert-manager:
+  fullnameOverride: cert-manager
+  installCRDs: true
+  replicaCount: 1
+  startupapicheck:
+    jobAnnotations:
+      helm.sh/hook: post-install,post-upgrade
+    rbac:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+    serviceAccount:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+qovery-cert-manager-webhook:
+  fullnameOverride: qovery-cert-manager-webhook
+  certManager:
+    namespace: qovery
+    serviceAccountName: cert-manager
+  secret:
+    apiUrl: *qoveryDnsUrl
+    apiKey: *jwtToken
+cert-manager-configs:
+  fullnameOverride: cert-manager-configs
+  externalDnsProvider: pdns # Qovery DNS
+  namespace: "qovery"
+  managedDns: [*domain]
+  acme:
+    letsEncrypt:
+      emailReport: *acmeEmailAddr
+      # set the Let's Encrypt URL
+      # Test: https://acme-staging-v02.api.letsencrypt.org/directory
+      # Prod: 
+      acmeUrl: https://acme-v02.api.letsencrypt.org/directory
+  provider:
+    pdns:
+      apiPort: "443"
+      apiUrl: *qoveryDnsUrl
+      apiKey: *jwtToken
+metrics-server:
+  # create api service to be able to use hpa/vpa
+  apiService:
+    create: true
+  # set rolling restart strategy
+  updateStrategy:
+    type: set-by-customer
+  # set resources
+  resources:
+    limits:
+      cpu: set-by-customer
+      memory: set-by-customer
+    requests:
+      cpu: set-by-customer
+      memory: set-by-customer
+  

@@ -1,0 +1,13 @@
+{{- if and (.Values.podDisruptionBudget.enabled) (gt (int .Values.autoscaler.minReplicas) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: qovery-engine
+  labels:
+    {{- include "qovery-engine.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: qovery-engine
+{{- end }}

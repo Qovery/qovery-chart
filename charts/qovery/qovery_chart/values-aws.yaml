@@ -1,0 +1,454 @@
+services:
+  qovery:
+    qovery-cluster-agent:
+      enabled: true
+    qovery-shell-agent:
+      enabled: true
+    qovery-engine:
+      enabled: false
+  ingress:
+    ingress-nginx:
+      enabled: true
+  dns:
+    external-dns:
+      enabled: true
+  logging:
+    loki:
+      enabled: true
+    promtail:
+      enabled: true
+  certificates:
+    cert-manager:
+      enabled: true
+    cert-manager-configs:
+      enabled: true
+    qovery-cert-manager-webhook:
+      enabled: true
+  observability:
+    metrics-server:
+      enabled: true
+  aws:
+    q-storageclass-aws:
+      enabled: true
+qovery:
+  clusterId: &clusterId set-by-customer
+  clusterShortId: &clusterShortId set-by-customer
+  organizationId: &organizationId set-by-customer
+  jwtToken: &jwtToken set-by-customer
+  domain: &domain set-by-customer
+  domainWildcard: &domainWildcard set-by-customer
+  grpcServer: &grpcServer set-by-customer
+  engineGrpcServer: &engineGrpcServer set-by-customer
+  qoveryDnsUrl: &qoveryDnsUrl set-by-customer
+  lokiUrl: &lokiUrl set-by-customer
+  promtailLokiUrl: &promtailLokiUrl set-by-customer
+  acmeEmailAddr: &acmeEmailAddr set-by-customer
+  externalDnsPrefix: &externalDnsPrefix set-by-customer
+  architectures: &architectures set-by-customer
+qovery-cluster-agent:
+  fullNameOverride: qovery-shell-agent
+  image:
+    tag: latest
+  environmentVariables:
+    CLUSTER_ID: *clusterId
+    CLUSTER_JWT_TOKEN: *jwtToken
+    GRPC_SERVER: *grpcServer
+    LOKI_URL: *lokiUrl
+    ORGANIZATION_ID: *organizationId
+qovery-shell-agent:
+  fullNameOverride: qovery-shell-agent
+  image:
+    tag: latest
+  environmentVariables:
+    CLUSTER_ID: *clusterId
+    CLUSTER_JWT_TOKEN: *jwtToken
+    GRPC_SERVER: *grpcServer
+    ORGANIZATION_ID: *organizationId
+ingress-nginx:
+  controller:
+    useComponentLabel: true
+    admissionWebhooks:
+      enabled: false # set-by-customer
+    # enable if you want metrics scrapped by prometheus
+    metrics:
+      enabled: true # set-by-customer
+      serviceMonitor:
+        enabled: false # set-by-customer
+    config:
+      # set global default file size limit to 100m
+      proxy-body-size: 100m
+      # hide Nginx version
+      server-tokens: "false"
+    # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
+    ingressClass: nginx-qovery
+    extraArgs:
+      # Kubernetes path of the default Cert-manager TLS certificate (if used)
+      default-ssl-certificate: "cert-manager/letsencrypt-acme-qovery-cert"
+    updateStrategy:
+      rollingUpdate:
+        # set the minimum acceptable number of unavailable pods during a rolling update
+        maxUnavailable: 1
+    # enable auoscaling if you want to scale the number of replicas based on CPU usage
+    autoscaling:
+      enabled: false # set-by-customer
+      minReplicas: 2 # set-by-customer
+      maxReplicas: 25 # set-by-customer
+      targetCPUUtilizationPercentage: 50  # set-by-customer
+    # required if you rely on a load balancer
+    # the controller mirrors the address of this service's endpoints to the load-balancer status of all Ingress objects it satisfies.
+    publishService:
+      enabled: true
+    # set a load balancer if you want your Nginx to be publicly accessible
+    service:
+      enabled: true
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        # Qovery managed DNS requieres *.$domain (something like: *.<cluster_id>.<given_dns_name>)
+        external-dns.alpha.kubernetes.io/hostname: *domainWildcard
+      externalTrafficPolicy: "Local"
+      sessionAffinity: ""
+      healthCheckNodePort: 0
+  
+external-dns:
+  # set the provider to use
+  provider: set-by-customer
+  # keep the config you want to use and remove the others. Configure the provider you want to use.
+  cloudflare:
+    apiToken: set-by-customer
+    email: set-by-customer
+    proxied: set-by-customer
+  pdns:
+    # Qovery DNS: apiUrl: *qoveryDnsUrl
+    apiUrl: set-by-customer
+    # Qovery DNS: apiPort: "443"
+    apiPort: set-by-customer
+    # Qovery DNS: apiKey: "443"
+    apiKey: set-by-customer
+  podDisruptionBudget:
+    maxUnavailable: 1
+  # Make external DNS ignore this ingress https://github.com/kubernetes-sigs/external-dns/issues/1910#issuecomment-976371247
+  annotationFilter: external-dns.alpha.kubernetes.io/exclude notin (true)
+  # set domainFilters to the domain you want to manage: [*domain]
+  domainFilters: set-by-customer
+  triggerLoopOnEvent: true
+  policy: sync
+  # avoid dns collision with other external-dns instances
+  txtOwnerId: set-by-customer
+  txtPrefix: set-by-customer
+  # set the number of replicas you want to use
+  replicas: 1
+  # set the rolling update strategy you want to apply
+  updateStrategy:
+    type: set-by-customer
+  # remove if you don't want to use a custom image
+  image:
+    registry: set-by-customer
+    repository: set-by-customer
+    tag: 0.13.2-debian-11-r17
+  # set resources
+  resources:
+    limits:
+      cpu: 50m
+      memory: 100Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+  
+promtail:
+  # remove if you don't want to use a custom image
+  image:
+    registry: set-by-customer
+    repository: set-by-customer
+  # It's mandatory to get this class to ensure paused infra will behave properly on restore
+  priorityClassName: system-node-critical
+  config:
+    clients:
+      # set loki URL: *promtailLokiUrl or set a custom URL
+      - url: set-by-customer
+    snippets:
+      extraRelabelConfigs:
+        # required this config in order for the cluster agent to retrieve the log of the service
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(qovery_com_service_id|qovery_com_service_type|qovery_com_environment_id)
+  # set resources
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+loki:
+  # remove if you don't want to use a custom image
+  kubectlImage:
+    registry: set-by-customer
+    repository: set-by-customer
+  tableManager:
+    retention_deletes_enabled: set-by-customer # qovery setting
+    retention_period: set-by-customer # qovery setting
+  loki:
+    # remove if you don't want to use a custom image
+    image:
+      registry: set-by-customer
+      repository: set-by-customer
+    # set if you want to use authentication
+    auth_enabled: false
+    commonConfig:
+      # for simple usage, without high throughput, you can use the 1 replica only
+      # note: replication is assured by the storage backend
+      replication_factor: 1
+    ingester:
+      chunk_idle_period: 3m
+      chunk_block_size: 262144
+      chunk_retain_period: 1m
+      max_transfer_retries: 0
+      lifecycler:
+        ring:
+          kvstore:
+            store: memberlist
+          replication_factor: 1
+    memberlistConfig:
+      abort_if_cluster_join_fails: false
+      bind_port: 7946
+      join_members:
+        # set loki headless service
+        - loki-headless.logging.svc:7946
+      max_join_backoff: 1m
+      max_join_retries: 10
+      min_join_backoff: 1s
+    limits_config:
+      ingestion_rate_mb: 20
+      ingestion_burst_size_mb: 30
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      max_concurrent_tail_requests: 100
+      split_queries_by_interval: 15m
+      max_query_lookback: 12w
+    compactor:
+      working_directory: /data/retention
+      # configure storage provider for the compactor
+      shared_store: set-by-customer
+      compaction_interval: 10m
+      retention_enabled: set-by-customer
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
+    schema_config:
+      configs:
+        # set the schema for the index (2020 version can be deleted on a fresh install)
+        - from: 2020-05-15
+          store: boltdb-shipper
+          object_store: s3
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+        - from: 2023-06-01
+          store: boltdb-shipper
+          object_store: s3
+          schema: v12
+          index:
+            prefix: index_
+            period: 24h
+    storage:
+      # configure the object storage backend
+      bucketNames:
+        chunks: set-by-customer
+        ruler: set-by-customer
+        admin: set-by-customer
+      type: set-by-customer
+      s3:
+        s3: set-by-customer
+        region: set-by-customer
+        s3ForcePathStyle: set-by-customer
+        insecure: set-by-customer
+      gcs:
+        chunkBufferSize: 0
+        requestTimeout: "0s"
+        enableHttp2: true
+    storage_config:
+      gcs:
+        bucket_name: set-by-customer
+      boltdb_shipper:
+        active_index_directory: /data/loki/index
+        shared_store: set-by-customer
+        resync_interval: 5s
+        cache_location: /data/loki/boltdb-cache
+  monitoring:
+    dashboards:
+      enabled: false
+    rules:
+      enabled: false
+    serviceMonitor:
+      enabled: false
+      metricsInstance:
+        enabled: false
+    selfMonitoring:
+      enabled: false
+      grafanaAgent:
+        installOperator: false
+    lokiCanary:
+      enabled: false
+  test:
+    enabled: false
+  gateway:
+    enabled: false
+  # set the single binary version for basic usage
+  singleBinary:
+    replicas: 1
+    # set resources
+    resources:
+      limits:
+        cpu: set-by-customer
+        memory: set-by-customer
+      requests:
+        cpu: set-by-customer
+        memory: set-by-customer
+    persistence:
+      enabled: false
+    extraVolumes:
+      - name: data
+        emptyDir: {}
+      - name: storage
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: data
+        mountPath: /data
+      - name: storage
+        mountPath: /var/loki
+    # set disk persistence to reduce data loss in case of pod crash
+    # persistence:
+    #   storageClass: set-by-customer
+  serviceAccount:
+    annotations: {}
+  
+cert-manager:
+  global:
+    leaderElection:
+      # ensure there is only one active controller manager per cluster. Set where the leader election lock is stored.
+      namespace: set-by-customer
+  # Qovery requires CRD
+  # WARNING: do not enable this if you already have another Cert-manager installed on the cluster to avoid CRD conflicts version.
+  # Qovery strongly discourage to use another Cert-manager to reduce configuration complexity and miss-configuration.
+  installCRDs: true
+  startupapicheck:
+    jobAnnotations:
+      helm.sh/hook: post-install,post-upgrade
+    rbac:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+    serviceAccount:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+  # enable if you want Prometheus scraping
+  prometheus:
+    servicemonitor:
+      enabled: set-by-customer
+      prometheusInstance: qovery
+  # Qovery DNS are managed by Cloudflare, so to speed up DNS availability, we use Cloudflare DNS + Google DNS as fallback.
+  # But you can use the one you want (it may slowdown application deployment because of DNS check).
+  dns01RecursiveNameserversOnly: true
+  dns01RecursiveNameservers: "1.1.1.1:53,8.8.8.8:53"
+  # configure the number of instances
+  replicaCount: 1
+  # set rolling restart strategy
+  strategy:
+    type: set-by-customer
+  # set resources for the controller-manager
+  resources:
+    limits:
+      cpu: set-by-customer
+      memory: set-by-customer
+    requests:
+      cpu: set-by-customer
+      memory: set-by-customer
+  # set resources for the webhook
+  webhook:
+    strategy:
+      type: set-by-customer
+    resources:
+      limits:
+        cpu: set-by-customer
+        memory: set-by-customer
+      requests:
+        cpu: set-by-customer
+        memory: set-by-customer
+  # set resources for the cainjector
+  cainjector:
+    strategy:
+      type: set-by-customer
+    resources:
+      limits:
+        cpu: set-by-customer
+        memory: set-by-customer
+      requests:
+        cpu: set-by-customer
+        memory: set-by-customer
+  
+qovery-cert-manager-webhook:
+  certManager:
+    # set the same namespace than cert-manager
+    namespace: set-by-customer
+    serviceAccountName: cert-manager
+  # set the rolling restart strategy
+  updateStrategy:
+    type: set-by-customer
+  secret:
+    # set *qoveryDnsUrl (Qovery DNS)
+    apiUrl: set-by-customer
+    # set *jwtToken (Qovery DNS)
+    apiKey: set-by-customer
+  # set resources
+  resources:
+    limits:
+      cpu: set-by-customer
+      memory: set-by-customer
+    requests:
+      cpu: set-by-customer
+      memory: set-by-customer
+  
+cert-manager-configs:
+  # set the same namespace than cert-manager
+  namespace: set-by-customer
+  # configure the provider and the managed DNS (pdns for Qovery DNS)
+  externalDnsProvider: set-by-customer
+  # you can use [*domain] or the ones you want
+  managedDns: set-by-customer
+  acme:
+    letsEncrypt:
+      # Let's encrypt email address for notifications
+      emailReport: set-by-customer
+      # set the Let's Encrypt URL
+      # Test: https://acme-staging-v02.api.letsencrypt.org/directory
+      # Prod: https://acme-v02.api.letsencrypt.org/directory
+      acmeUrl: set-by-customer
+  # configure the provider, remove the one you don't use (generally same config as external DNS)
+  provider:
+    cloudflare:
+      apiToken: set-by-customer
+      email: set-by-customer
+    pdns:
+      # Qovery DNS: apiPort: "443"
+      apiPort: set-by-customer
+      # Qovery DNS: apiUrl: *qoveryDnsUrl
+      apiUrl: set-by-customer
+      # Qovery DNS: apiKey: *jwtToken
+      apiKey: set-by-customer
+  
+metrics-server:
+  # create api service to be able to use hpa/vpa
+  apiService:
+    create: true
+  # set rolling restart strategy
+  updateStrategy:
+    type: set-by-customer
+  # set resources
+  resources:
+    limits:
+      cpu: set-by-customer
+      memory: set-by-customer
+    requests:
+      cpu: set-by-customer
+      memory: set-by-customer
+  

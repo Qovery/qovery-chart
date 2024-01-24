@@ -1,0 +1,71 @@
+services:
+  qovery:
+    qovery-cluster-agent:
+      enabled: true
+    qovery-shell-agent:
+      enabled: true
+    qovery-engine:
+      enabled: false
+  ingress:
+    ingress-nginx:
+      enabled: false
+  dns:
+    external-dns:
+      enabled: false
+  logging:
+    loki:
+      enabled: false
+    promtail:
+      enabled: false
+  certificates:
+    cert-manager:
+      enabled: false
+    cert-manager-configs:
+      enabled: false
+    qovery-cert-manager-webhook:
+      enabled: false
+  observability:
+    metrics-server:
+      enabled: false
+qovery:
+  clusterId: '&clusterId set-by-customer'
+  clusterShortId: '&clusterShortId set-by-customer'
+  organizationId: '&organizationId set-by-customer'
+  jwtToken: '&jwtToken set-by-customer'
+  domain: '&domain set-by-customer'
+  domainWildcard: '&domainWildcard set-by-customer'
+  grpcServer: '&grpcServer set-by-customer'
+  engineGrpcServer: '&engineGrpcServer set-by-customer'
+  qoveryDnsUrl: '&qoveryDnsUrl set-by-customer'
+  lokiUrl: '&lokiUrl set-by-customer'
+  promtailLokiUrl: '&promtailLokiUrl set-by-customer'
+  acmeEmailAddr: '&acmeEmailAddr set-by-customer'
+  externalDnsPrefix: '&externalDnsPrefix set-by-customer'
+  architectures: '&architectures set-by-customer'
+qovery-cluster-agent:
+  fullNameOverride: qovery-shell-agent
+  image:
+    tag: latest
+  environmentVariables:
+    CLUSTER_ID: '*clusterId'
+    CLUSTER_JWT_TOKEN: '*jwtToken'
+    GRPC_SERVER: '*grpcServer'
+    LOKI_URL: '*lokiUrl'
+    ORGANIZATION_ID: '*organizationId'
+qovery-shell-agent:
+  fullNameOverride: qovery-shell-agent
+  image:
+    tag: latest
+  environmentVariables:
+    CLUSTER_ID: '*clusterId'
+    CLUSTER_JWT_TOKEN: '*jwtToken'
+    GRPC_SERVER: '*grpcServer'
+    ORGANIZATION_ID: '*organizationId'
+ingress-nginx: {}
+external-dns: {}
+promtail: {}
+loki: {}
+cert-manager: {}
+qovery-cert-manager-webhook: {}
+cert-manager-configs: {}
+metrics-server: {}
