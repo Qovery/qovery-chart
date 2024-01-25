@@ -46,7 +46,7 @@ qovery:
 qovery-cluster-agent:
   fullNameOverride: qovery-shell-agent
   image:
-    tag: latest
+    tag: 67baaba8aae60ed4dbde3f4107c7b8ebf35b46a8
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
@@ -56,7 +56,7 @@ qovery-cluster-agent:
 qovery-shell-agent:
   fullNameOverride: qovery-shell-agent
   image:
-    tag: latest
+    tag: 67baaba8aae60ed4dbde3f4107c7b8ebf35b46a8
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
