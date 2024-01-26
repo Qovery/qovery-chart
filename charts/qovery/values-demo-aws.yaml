@@ -37,8 +37,6 @@ qovery:
   jwtToken: &jwtToken set-by-customer
   domain: &domain set-by-customer
   domainWildcard: &domainWildcard set-by-customer
-  grpcServer: &grpcServer set-by-customer
-  engineGrpcServer: &engineGrpcServer set-by-customer
   qoveryDnsUrl: &qoveryDnsUrl set-by-customer
   lokiUrl: &lokiUrl set-by-customer
   promtailLokiUrl: &promtailLokiUrl set-by-customer
@@ -48,21 +46,19 @@ qovery:
 qovery-cluster-agent:
   fullNameOverride: qovery-shell-agent
   image:
-    tag: latest
+    tag: 67baaba8aae60ed4dbde3f4107c7b8ebf35b46a8
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
-    GRPC_SERVER: *grpcServer
     LOKI_URL: *lokiUrl
     ORGANIZATION_ID: *organizationId
 qovery-shell-agent:
   fullNameOverride: qovery-shell-agent
   image:
-    tag: latest
+    tag: 67baaba8aae60ed4dbde3f4107c7b8ebf35b46a8
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
-    GRPC_SERVER: *grpcServer
     ORGANIZATION_ID: *organizationId
 ingress-nginx:
   controller:
