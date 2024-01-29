@@ -79,7 +79,7 @@ ingress-nginx:
     ingressClass: nginx-qovery
     extraArgs:
       # Kubernetes path of the default Cert-manager TLS certificate (if used)
-      default-ssl-certificate: "cert-manager/letsencrypt-acme-qovery-cert"
+      default-ssl-certificate: "qovery/letsencrypt-acme-qovery-cert"
     updateStrategy:
       rollingUpdate:
         # set the minimum acceptable number of unavailable pods during a rolling update
