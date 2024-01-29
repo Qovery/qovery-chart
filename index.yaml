@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-01-26T18:29:49.423382326Z"
+    created: "2024-01-29T17:25:20.755747354Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -17,6 +17,10 @@ entries:
       name: q-storageclass-scaleway
       repository: file://charts/q-storageclass-scaleway
       version: 0.1.0
+    - condition: services.aws.aws-ebs-csi-driver.enabled
+      name: aws-ebs-csi-driver
+      repository: file://charts/aws-ebs-csi-driver
+      version: 2.27.0
     - condition: services.ingress.ingress-nginx.enabled
       name: ingress-nginx
       repository: file://charts/ingress-nginx
@@ -62,7 +66,7 @@ entries:
       repository: file://charts/qovery-engine
       version: 0.1.0
     description: Qovery Helm chart - self managed version
-    digest: 8e7a8869b68a169c832f465433cf8bd3d50f3568943c957983a1dff4ebc3be6e
+    digest: ceaef0ceca6349ba6d9cedb86dbaa3a76669821b5305da5bd74c3ffebbdf116c
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -70,4 +74,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2024-01-26T18:29:49.379523265Z"
+generated: "2024-01-29T17:25:20.708212698Z"
