@@ -61,8 +61,7 @@ qovery-shell-agent:
 ingress-nginx:
   controller:
     useComponentLabel: true
-    admissionWebhooks:
-      enabled: false # set-by-customer
+    allowSnippetAnnotations: true
     # enable if you want metrics scrapped by prometheus
     metrics:
       enabled: true # set-by-customer
@@ -73,6 +72,8 @@ ingress-nginx:
       proxy-body-size: 100m
       # hide Nginx version
       server-tokens: "false"
+      # enable real IP (client IP)
+      enable-real-ip: "false" # set-by-customer
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
     ingressClass: nginx-qovery
     extraArgs:

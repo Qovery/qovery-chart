@@ -66,7 +66,8 @@ ingress-nginx:
   controller:
     useComponentLabel: true
     admissionWebhooks:
-      enabled: false # set-by-customer
+      enabled: false
+    allowSnippetAnnotations: true
     # enable if you want metrics scrapped by prometheus
     metrics:
       enabled: true # set-by-customer
@@ -77,6 +78,8 @@ ingress-nginx:
       proxy-body-size: 100m
       # hide Nginx version
       server-tokens: "false"
+      # enable real IP (client IP)
+      enable-real-ip: "false" # set-by-customer
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
     ingressClass: nginx-qovery
     extraArgs:
@@ -86,7 +89,7 @@ ingress-nginx:
       rollingUpdate:
         # set the minimum acceptable number of unavailable pods during a rolling update
         maxUnavailable: 1
-    # enable auoscaling if you want to scale the number of replicas based on CPU usage
+    # enable autoscaling if you want to scale the number of replicas based on CPU usage
     autoscaling:
       enabled: false # set-by-customer
       minReplicas: 2 # set-by-customer
