@@ -310,9 +310,9 @@ loki:
       enabled: false
     extraVolumes:
       - name: data
-        emptyDir: {}
+        emptyDir: { }
       - name: storage
-        emptyDir: {}
+        emptyDir: { }
     extraVolumeMounts:
       - name: data
         mountPath: /data
@@ -322,7 +322,7 @@ loki:
     # persistence:
     #   storageClass: set-by-customer
   serviceAccount:
-    annotations: {}
+    annotations: { }
   
 cert-manager:
   global:
