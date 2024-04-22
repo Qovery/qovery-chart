@@ -51,10 +51,13 @@ qovery:
   acmeEmailAddr: '&acmeEmailAddr set-by-customer'
   externalDnsPrefix: '&externalDnsPrefix set-by-customer'
   architectures: '&architectures set-by-customer'
+  engineVersion: '&engineVersion set-by-customer'
+  shellAgentVersion: '&shellAgentVersion set-by-customer'
+  clusterAgentVersion: '&clusterAgentVersion set-by-customer'
 qovery-cluster-agent:
   fullNameOverride: qovery-shell-agent
   image:
-    tag: 2a2fb514aa6029fd80147180d68017c29c6ea4d2
+    tag: '*clusterAgentVersion'
   environmentVariables:
     CLUSTER_ID: '*clusterId'
     CLUSTER_JWT_TOKEN: '*jwtToken'
@@ -63,7 +66,7 @@ qovery-cluster-agent:
 qovery-shell-agent:
   fullNameOverride: qovery-shell-agent
   image:
-    tag: 2a2fb514aa6029fd80147180d68017c29c6ea4d2
+    tag: '*shellAgentVersion'
   environmentVariables:
     CLUSTER_ID: '*clusterId'
     CLUSTER_JWT_TOKEN: '*jwtToken'
