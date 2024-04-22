@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-04-17T13:09:39.902689887Z"
+    created: "2024-04-22T12:21:28.323008054Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -13,7 +13,7 @@ entries:
       name: q-storageclass-gcp
       repository: file://charts/q-storageclass-gcp
       version: 0.1.0
-    - condition: services.gcp.q-storageclass-scaleway.enabled
+    - condition: services.scaleway.q-storageclass-scaleway.enabled
       name: q-storageclass-scaleway
       repository: file://charts/q-storageclass-scaleway
       version: 0.1.0
@@ -66,7 +66,7 @@ entries:
       repository: file://charts/qovery-engine
       version: 0.1.0
     description: Qovery Helm chart - self managed version
-    digest: 838c43f0d485da00ae7c5e2171c12667a01f028081bf5a230034658dec841274
+    digest: 3b1ef5c74ee7b13c3db8144586f386be2753b813f2b30b01aa42e83a29dd89e3
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -74,4 +74,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2024-04-17T13:09:39.841740841Z"
+generated: "2024-04-22T12:21:28.275375431Z"
