@@ -25,6 +25,14 @@ services:
     qovery-cert-manager-webhook:
       enabled: true
   observability: {}
+  aws:
+    q-storageclass-aws:
+      enabled: false
+    aws-ebs-csi-driver:
+      enabled: false
+  gcp:
+    q-storageclass-gcp:
+      enabled: false
   scaleway:
     q-storageclass-scaleway:
       enabled: true

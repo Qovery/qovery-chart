@@ -27,6 +27,17 @@ services:
   observability:
     metrics-server:
       enabled: false
+  aws:
+    q-storageclass-aws:
+      enabled: false
+    aws-ebs-csi-driver:
+      enabled: false
+  gcp:
+    q-storageclass-gcp:
+      enabled: false
+  scaleway:
+    q-storageclass-scaleway:
+      enabled: false
 qovery:
   clusterId: '&clusterId set-by-customer'
   clusterShortId: '&clusterShortId set-by-customer'

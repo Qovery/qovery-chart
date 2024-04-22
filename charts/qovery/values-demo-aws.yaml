@@ -32,6 +32,12 @@ services:
       enabled: true
     aws-ebs-csi-driver:
       enabled: false
+  gcp:
+    q-storageclass-gcp:
+      enabled: false
+  scaleway:
+    q-storageclass-scaleway:
+      enabled: false
 qovery:
   clusterId: &clusterId set-by-customer
   clusterShortId: &clusterShortId set-by-customer

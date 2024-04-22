@@ -11,7 +11,7 @@ dependencies:
   version: 0.1.0
   repository: file://charts/q-storageclass-gcp
 - name: q-storageclass-scaleway
-  condition: services.gcp.q-storageclass-scaleway.enabled
+  condition: services.scaleway.q-storageclass-scaleway.enabled
   version: 0.1.0
   repository: file://charts/q-storageclass-scaleway
 - name: aws-ebs-csi-driver
