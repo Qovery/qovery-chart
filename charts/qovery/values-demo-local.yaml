@@ -6,6 +6,8 @@ services:
       enabled: true
     qovery-engine:
       enabled: true
+    qovery-priority-class:
+      enabled: true
   ingress:
     ingress-nginx:
       enabled: true
@@ -156,6 +158,9 @@ promtail: {}
 loki: {}
 cert-manager:
   fullnameOverride: cert-manager
+  global:
+    leaderElection:
+      namespace: qovery
   installCRDs: true
   replicaCount: 1
   startupapicheck:

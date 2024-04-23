@@ -6,6 +6,8 @@ services:
       enabled: true
     qovery-engine:
       enabled: false
+    qovery-priority-class:
+      enabled: true
   ingress:
     ingress-nginx:
       enabled: true
@@ -132,7 +134,7 @@ external-dns:
 promtail:
   fullnameOverride: promtail
   namespace: kube-system
-  priorityClassName: system-node-critical
+  priorityClassName: qovery-high-priority
   config:
     clients:
       - url: *promtailLokiUrl
@@ -196,6 +198,9 @@ loki:
         mountPath: /var/loki
 cert-manager:
   fullnameOverride: cert-manager
+  global:
+    leaderElection:
+      namespace: qovery
   installCRDs: true
   replicaCount: 1
   startupapicheck:

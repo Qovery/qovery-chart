@@ -6,6 +6,8 @@ services:
       enabled: true
     qovery-engine:
       enabled: false
+    qovery-priority-class:
+      enabled: true
   ingress:
     ingress-nginx:
       enabled: false
