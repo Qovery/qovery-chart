@@ -139,7 +139,7 @@ external-dns:
     apiPort: 443
 promtail:
   fullnameOverride: promtail
-  namespace: kube-system
+  namespace: qovery
   priorityClassName: qovery-high-priority
   config:
     clients:
