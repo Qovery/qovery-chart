@@ -80,6 +80,7 @@ qovery-engine:
   buildContainer:
     environmentVariables:
       BUILDER_CPU_ARCHITECTURES: *architectures
+      BUILDER_ROOTLESS_ENABLED: 'false'
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
@@ -87,7 +88,6 @@ qovery-engine:
     GRPC_SERVER: engine.qovery.com:443
     LIB_ROOT_DIR: /home/qovery/lib
     ORGANIZATION_ID: *organizationId
-    REGION: local
 ingress-nginx:
   controller:
     admissionWebhooks:

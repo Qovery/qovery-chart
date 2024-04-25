@@ -73,6 +73,21 @@ qovery-shell-agent:
     CLUSTER_ID: '*clusterId'
     CLUSTER_JWT_TOKEN: '*jwtToken'
     ORGANIZATION_ID: '*organizationId'
+qovery-engine:
+  image:
+    tag: '*engineVersion'
+  engineResources: null
+  buildContainer:
+    environmentVariables:
+      BUILDER_CPU_ARCHITECTURES: '*architectures'
+      BUILDER_ROOTLESS_ENABLED: 'true'
+  environmentVariables:
+    CLUSTER_ID: '*clusterId'
+    CLUSTER_JWT_TOKEN: '*jwtToken'
+    DOCKER_HOST: tcp://0.0.0.0:2375
+    GRPC_SERVER: engine.qovery.com:443
+    LIB_ROOT_DIR: /home/qovery/lib
+    ORGANIZATION_ID: '*organizationId'
 ingress-nginx: {}
 external-dns: {}
 promtail: {}
