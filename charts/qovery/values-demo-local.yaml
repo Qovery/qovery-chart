@@ -105,7 +105,7 @@ ingress-nginx:
       # hide Nginx version
       server-tokens: "false"
       # required for X-Forwarded-for to work
-      use-proxy-protocol: "true"
+      use-proxy-protocol: "false"
       # enable real IP (client IP)
       enable-real-ip: "false" # set-by-customer
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
