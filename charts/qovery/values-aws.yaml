@@ -5,7 +5,7 @@ services:
     qovery-shell-agent:
       enabled: true
     qovery-engine:
-      enabled: false
+      enabled: true
     qovery-priority-class:
       enabled: true
   ingress:
