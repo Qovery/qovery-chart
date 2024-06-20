@@ -109,7 +109,7 @@ ingress-nginx:
       # customize log-format / set-by-customer
       # default format can be found in the template: https://github.com/nginxinc/kubernetes-ingress/blob/v3.5.2/internal/configs/version1/nginx.tmpl#L44
       log-format-upstream: >
-        '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for"
+        $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for"
       log-format-escaping-json: "false" # set-by-customer
       log-format-escaping-none: "false" # set-by-customer
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
