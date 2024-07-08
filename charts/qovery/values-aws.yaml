@@ -57,7 +57,7 @@ qovery:
   shellAgentVersion: &shellAgentVersion set-by-customer
   clusterAgentVersion: &clusterAgentVersion set-by-customer
 qovery-cluster-agent:
-  fullNameOverride: qovery-shell-agent
+  fullnameOverride: qovery-shell-agent
   image:
     tag: *clusterAgentVersion
   environmentVariables:
@@ -65,8 +65,9 @@ qovery-cluster-agent:
     CLUSTER_JWT_TOKEN: *jwtToken
     LOKI_URL: *lokiUrl
     ORGANIZATION_ID: *organizationId
+  useSelfSignCertificate: true
 qovery-shell-agent:
-  fullNameOverride: qovery-shell-agent
+  fullnameOverride: qovery-shell-agent
   image:
     tag: *shellAgentVersion
   environmentVariables:
@@ -167,7 +168,21 @@ ingress-nginx:
         topologyKey: kubernetes.io/hostname
         maxSkew: 1
         whenUnsatisfiable: DoNotSchedule
-  
+    {%- if enable_karpenter %}
+    tolerations:
+      - effect: NoSchedule
+        key: nodepool/stable
+        operator: Exists
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: karpenter.sh/nodepool
+                operator: In
+                values:
+                  - stable
+    {%- endif %}
 external-dns:
   # set the provider to use
   provider: set-by-customer

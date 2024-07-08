@@ -55,7 +55,7 @@ qovery:
   shellAgentVersion: &shellAgentVersion set-by-customer
   clusterAgentVersion: &clusterAgentVersion set-by-customer
 qovery-cluster-agent:
-  fullNameOverride: qovery-shell-agent
+  fullnameOverride: qovery-shell-agent
   image:
     tag: *clusterAgentVersion
   environmentVariables:
@@ -63,8 +63,9 @@ qovery-cluster-agent:
     CLUSTER_JWT_TOKEN: *jwtToken
     LOKI_URL: *lokiUrl
     ORGANIZATION_ID: *organizationId
+  useSelfSignCertificate: true
 qovery-shell-agent:
-  fullNameOverride: qovery-shell-agent
+  fullnameOverride: qovery-shell-agent
   image:
     tag: *shellAgentVersion
   environmentVariables:
