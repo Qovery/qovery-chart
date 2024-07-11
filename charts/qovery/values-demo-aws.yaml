@@ -110,10 +110,6 @@ ingress-nginx:
       # customize log-format / set-by-customer
       # default format can be found in the template: https://github.com/nginxinc/kubernetes-ingress/blob/v3.5.2/internal/configs/version1/nginx.tmpl#L44
       # nginx_controller_log_format_upstream can be a json that why we pass it in the value file
-      {%- if nginx_controller_log_format_upstream %}
-      log-format-upstream: >
-        set-by-customer
-      {%- endif %}
       log-format-escaping-json: "false" # set-by-customer
       log-format-escaping-none: "false" # set-by-customer
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
@@ -168,21 +164,6 @@ ingress-nginx:
         topologyKey: kubernetes.io/hostname
         maxSkew: 1
         whenUnsatisfiable: DoNotSchedule
-    {%- if enable_karpenter %}
-    tolerations:
-      - effect: NoSchedule
-        key: nodepool/stable
-        operator: Exists
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-              - key: karpenter.sh/nodepool
-                operator: In
-                values:
-                  - stable
-    {%- endif %}
 external-dns:
   fullnameOverride: external-dns
   provider: pdns
