@@ -48,8 +48,6 @@ qovery:
   domain: &domain set-by-customer
   domainWildcard: &domainWildcard set-by-customer
   qoveryDnsUrl: &qoveryDnsUrl set-by-customer
-  agentGatewayUrl: &agentGatewayUrl set-by-customer
-  engineGatewayUrl: &engineGatewayUrl set-by-customer
   lokiUrl: &lokiUrl set-by-customer
   promtailLokiUrl: &promtailLokiUrl set-by-customer
   acmeEmailAddr: &acmeEmailAddr set-by-customer
@@ -65,7 +63,6 @@ qovery-cluster-agent:
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
-    GRPC_SERVER: *agentGatewayUrl
     LOKI_URL: *lokiUrl
     ORGANIZATION_ID: *organizationId
   useSelfSignCertificate: true
@@ -76,7 +73,6 @@ qovery-shell-agent:
   environmentVariables:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
-    GRPC_SERVER: *agentGatewayUrl
     ORGANIZATION_ID: *organizationId
 qovery-engine:
   image:
@@ -90,7 +86,7 @@ qovery-engine:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
     DOCKER_HOST: tcp://0.0.0.0:2375
-    GRPC_SERVER: *engineGatewayUrl
+    GRPC_SERVER: engine.qovery.com:443
     LIB_ROOT_DIR: /home/qovery/lib
     ORGANIZATION_ID: *organizationId
 ingress-nginx:
