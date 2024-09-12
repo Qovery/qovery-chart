@@ -34,6 +34,8 @@ services:
       enabled: true
     aws-ebs-csi-driver:
       enabled: false
+    aws-load-balancer-controller:
+      enabled: true
   gcp:
     q-storageclass-gcp:
       enabled: false
@@ -118,6 +120,11 @@ ingress-nginx:
       # nginx_controller_log_format_upstream can be a json that why we pass it in the value file
       log-format-escaping-json: "false" # set-by-customer
       log-format-escaping-none: "false" # set-by-customer
+    ingressClassResource:
+      # -- Name of the IngressClass
+      name: nginx-qovery
+      # -- Create the IngressClass or not
+      enabled: true
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
     ingressClass: nginx-qovery
     extraArgs:
@@ -146,7 +153,15 @@ ingress-nginx:
     service:
       enabled: true
       annotations:
+        # Qovery is in a migration process to ALB controller, we advice to use it
         service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        # service.beta.kubernetes.io/aws-load-balancer-type: "external"
+        # service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        # service.beta.kubernetes.io/aws-load-balancer-name: "qovery-<short-cluster-id>-nginx-ingress",
+        # service.beta.kubernetes.io/aws-load-balancer-proxy-protocol": "*",
+        # service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip",
+        # service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: "target_health_state.unhealthy.connection_termination.enabled=false,target_health_state.unhealthy.draining_interval_seconds=300",
+        # service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10",
         # Qovery managed DNS requieres *.$domain (something like: *.<cluster_id>.<given_dns_name>)
         external-dns.alpha.kubernetes.io/hostname: *domainWildcard
       externalTrafficPolicy: "Local"
@@ -393,7 +408,16 @@ cert-manager:
   # Qovery requires CRD
   # WARNING: do not enable this if you already have another Cert-manager installed on the cluster to avoid CRD conflicts version.
   # Qovery strongly discourage to use another Cert-manager to reduce configuration complexity and miss-configuration.
-  installCRDs: true
+  crds:
+    # This option decides if the CRDs should be installed
+    # as part of the Helm installation.
+    enabled: true
+    # This option makes it so that the "helm.sh/resource-policy": keep
+    # annotation is added to the CRD. This will prevent Helm from uninstalling
+    # the CRD when the Helm release is uninstalled.
+    # WARNING: when the CRDs are removed, all cert-manager custom resources
+    # (Certificates, Issuers, ...) will be removed too by the garbage collector.
+    keep: true
   startupapicheck:
     jobAnnotations:
       helm.sh/hook: post-install,post-upgrade
@@ -514,3 +538,8 @@ metrics-server:
       cpu: 250m # set-by-customer
       memory: 64Mi # set-by-customer
   
+aws-load-balancer-controller:
+  clusterName: set-by-customer
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: set-by-customer

@@ -18,6 +18,10 @@ dependencies:
   condition: services.aws.aws-ebs-csi-driver.enabled
   version: 2.27.0
   repository: file://charts/aws-ebs-csi-driver
+- name: aws-load-balancer-controller
+  condition: services.aws.aws-load-balancer-controller.enabled
+  version: 1.8.0
+  repository: file://charts/aws-load-balancer-controller
 - name: ingress-nginx
   condition: services.ingress.ingress-nginx.enabled
   version: 4.8.3
@@ -36,7 +40,7 @@ dependencies:
   repository: file://charts/loki
 - name: cert-manager
   condition: services.certificates.cert-manager.enabled
-  version: v1.13.3
+  version: v1.15.3
   repository: file://charts/cert-manager
 - name: cert-manager-configs
   condition: services.certificates.cert-manager-configs.enabled

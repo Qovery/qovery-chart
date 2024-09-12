@@ -32,6 +32,8 @@ services:
       enabled: false
     aws-ebs-csi-driver:
       enabled: false
+    aws-load-balancer-controller:
+      enabled: false
   gcp:
     q-storageclass-gcp:
       enabled: true
@@ -112,6 +114,11 @@ ingress-nginx:
       # nginx_controller_log_format_upstream can be a json that why we pass it in the value file
       log-format-escaping-json: "false" # set-by-customer
       log-format-escaping-none: "false" # set-by-customer
+    ingressClassResource:
+      # -- Name of the IngressClass
+      name: nginx-qovery
+      # -- Create the IngressClass or not
+      enabled: true
     # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
     ingressClass: nginx-qovery
     extraArgs:
@@ -385,7 +392,16 @@ cert-manager:
   # Qovery requires CRD
   # WARNING: do not enable this if you already have another Cert-manager installed on the cluster to avoid CRD conflicts version.
   # Qovery strongly discourage to use another Cert-manager to reduce configuration complexity and miss-configuration.
-  installCRDs: true
+  crds:
+    # This option decides if the CRDs should be installed
+    # as part of the Helm installation.
+    enabled: true
+    # This option makes it so that the "helm.sh/resource-policy": keep
+    # annotation is added to the CRD. This will prevent Helm from uninstalling
+    # the CRD when the Helm release is uninstalled.
+    # WARNING: when the CRDs are removed, all cert-manager custom resources
+    # (Certificates, Issuers, ...) will be removed too by the garbage collector.
+    keep: true
   startupapicheck:
     jobAnnotations:
       helm.sh/hook: post-install,post-upgrade
