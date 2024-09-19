@@ -24,11 +24,11 @@ dependencies:
   repository: file://charts/aws-load-balancer-controller
 - name: ingress-nginx
   condition: services.ingress.ingress-nginx.enabled
-  version: 4.8.3
+  version: 4.11.2
   repository: file://charts/ingress-nginx
 - name: external-dns
   condition: services.dns.external-dns.enabled
-  version: 6.17.0
+  version: 8.3.8
   repository: file://charts/external-dns
 - name: promtail
   condition: services.logging.promtail.enabled
