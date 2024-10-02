@@ -52,7 +52,7 @@ dependencies:
   repository: file://charts/qovery-cert-manager-webhook
 - name: metrics-server
   condition: services.observability.metrics-server.enabled
-  version: 3.11.0
+  version: 3.12.1
   repository: file://charts/metrics-server
 - name: qovery-cluster-agent
   condition: services.qovery.qovery-cluster-agent.enabled
