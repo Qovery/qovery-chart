@@ -45,6 +45,7 @@ qovery:
   clusterShortId: &clusterShortId set-by-customer
   organizationId: &organizationId set-by-customer
   jwtToken: &jwtToken set-by-customer
+  rootDomain: &rootDomain set-by-customer
   domain: &domain set-by-customer
   domainWildcard: &domainWildcard set-by-customer
   qoveryDnsUrl: &qoveryDnsUrl set-by-customer
@@ -172,7 +173,7 @@ ingress-nginx:
 external-dns:
   fullnameOverride: external-dns
   provider: pdns
-  domainFilters: [*domain]
+  domainFilters: [*rootDomain]
   txtOwnerId: *shortClusterId
   txtPrefix: *externalDnsPrefix
   pdns:
