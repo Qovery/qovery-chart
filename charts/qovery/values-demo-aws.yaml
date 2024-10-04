@@ -35,7 +35,7 @@ services:
     aws-ebs-csi-driver:
       enabled: false
     aws-load-balancer-controller:
-      enabled: true
+      enabled: false
   gcp:
     q-storageclass-gcp:
       enabled: false
@@ -331,8 +331,3 @@ metrics-server:
       cpu: 250m # set-by-customer
       memory: 64Mi # set-by-customer
   
-aws-load-balancer-controller:
-  clusterName: set-by-customer
-  serviceAccount:
-    annotations:
-      eks.amazonaws.com/role-arn: set-by-customer
