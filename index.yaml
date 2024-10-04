@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-10-02T07:54:32.366817191Z"
+    created: "2024-10-04T11:41:56.691647778Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -74,7 +74,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.1.0
     description: Qovery Helm chart - self managed version
-    digest: abb95fd74cd660e957ace58df78f22a8eedc91614dcd5efdcbd50399ae37b2cc
+    digest: dd7c1ef1828638d86b33389e3f83a8e19e7d95e7572f30a51ca1e5fed141d7c2
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -82,4 +82,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2024-10-02T07:54:32.310171072Z"
+generated: "2024-10-04T11:41:56.631289785Z"
