@@ -190,7 +190,7 @@ external-dns:
   fullnameOverride: external-dns
   provider: pdns
   domainFilters: [*rootDomain]
-  txtOwnerId: *shortClusterId
+  txtOwnerId: *clusterShortId
   txtPrefix: *externalDnsPrefix
   pdns:
     apiUrl: *qoveryDnsUrl
