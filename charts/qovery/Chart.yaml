@@ -32,7 +32,7 @@ dependencies:
   repository: file://charts/external-dns
 - name: promtail
   condition: services.logging.promtail.enabled
-  version: 6.15.3
+  version: 6.16.6
   repository: file://charts/promtail
 - name: loki
   condition: services.logging.loki.enabled
