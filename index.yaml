@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-10-04T13:43:49.447516619Z"
+    created: "2024-10-07T08:39:58.816091729Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -36,7 +36,7 @@ entries:
     - condition: services.logging.promtail.enabled
       name: promtail
       repository: file://charts/promtail
-      version: 6.15.3
+      version: 6.16.6
     - condition: services.logging.loki.enabled
       name: loki
       repository: file://charts/loki
@@ -74,7 +74,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.1.0
     description: Qovery Helm chart - self managed version
-    digest: e05a1d4590da7f9f082e3e3bb978bcbd67000c25af9bb1036904da8ffc8212e2
+    digest: c5e580c61149c0b76ce9e3446241d0db23457f67f8e7216c3f28b155fccd32bb
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -82,4 +82,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2024-10-04T13:43:49.387367657Z"
+generated: "2024-10-07T08:39:58.76084611Z"
