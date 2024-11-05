@@ -48,7 +48,7 @@ dependencies:
   repository: file://charts/cert-manager-configs
 - name: qovery-cert-manager-webhook
   condition: services.certificates.qovery-cert-manager-webhook.enabled
-  version: 0.1.15
+  version: 0.1.16
   repository: file://charts/qovery-cert-manager-webhook
 - name: metrics-server
   condition: services.observability.metrics-server.enabled
