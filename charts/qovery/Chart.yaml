@@ -68,7 +68,7 @@ dependencies:
   repository: file://charts/qovery-engine
 - name: qovery-priority-class
   condition: services.qovery.qovery-priority-class.enabled
-  version: 0.1.0
+  version: 0.2.0
   repository: file://charts/qovery-priority-class
 type: application
 version: 1.0.0
