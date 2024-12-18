@@ -14,10 +14,6 @@ dependencies:
   condition: services.scaleway.q-storageclass-scaleway.enabled
   version: 0.1.0
   repository: file://charts/q-storageclass-scaleway
-- name: aws-ebs-csi-driver
-  condition: services.aws.aws-ebs-csi-driver.enabled
-  version: 2.35.1
-  repository: file://charts/aws-ebs-csi-driver
 - name: aws-load-balancer-controller
   condition: services.aws.aws-load-balancer-controller.enabled
   version: 1.8.3
