@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-12-12T08:54:52.945160755Z"
+    created: "2024-12-18T14:30:33.141810823Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -17,10 +17,6 @@ entries:
       name: q-storageclass-scaleway
       repository: file://charts/q-storageclass-scaleway
       version: 0.1.0
-    - condition: services.aws.aws-ebs-csi-driver.enabled
-      name: aws-ebs-csi-driver
-      repository: file://charts/aws-ebs-csi-driver
-      version: 2.35.1
     - condition: services.aws.aws-load-balancer-controller.enabled
       name: aws-load-balancer-controller
       repository: file://charts/aws-load-balancer-controller
@@ -74,7 +70,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: 6e0c662da94f60ac774a1f772ae9ea7d6009c5d82f70a6099fcdb29f7af745ea
+    digest: 07438e63a679da6933ee0201b24e2cf667f5fe93f69e3ec962f41d2f402d8450
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -82,4 +78,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2024-12-12T08:54:52.888529634Z"
+generated: "2024-12-18T14:30:33.088545302Z"
