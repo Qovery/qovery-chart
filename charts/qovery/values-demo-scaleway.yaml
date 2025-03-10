@@ -96,9 +96,9 @@ qovery-engine:
     ORGANIZATION_ID: *organizationId
 ingress-nginx:
   controller:
-    admissionWebhooks:
-      enabled: false
     useComponentLabel: true
+    admissionWebhooks:
+      enabled: true # set-by-customer
     allowSnippetAnnotations: true
     # enable if you want metrics scrapped by prometheus
     metrics:
@@ -205,6 +205,7 @@ external-dns:
   domainFilters: [*rootDomain]
   txtOwnerId: *clusterShortId
   txtPrefix: *externalDnsPrefix
+  annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
   pdns:
     apiUrl: *qoveryDnsUrl
     apiKey: *jwtToken

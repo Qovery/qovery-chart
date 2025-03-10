@@ -100,7 +100,7 @@ ingress-nginx:
   controller:
     useComponentLabel: true
     admissionWebhooks:
-      enabled: false
+      enabled: true # set-by-customer
     allowSnippetAnnotations: true
     # enable if you want metrics scrapped by prometheus
     metrics:
