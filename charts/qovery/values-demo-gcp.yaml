@@ -123,6 +123,8 @@ ingress-nginx:
       log-format-escaping-json: "false" # set-by-customer
       log-format-escaping-none: "false" # set-by-customer
       limit-req-status-code: "503" # set-by-customer
+    # PDB
+    maxUnavailable: 20%
     ingressClassResource:
       # -- Name of the IngressClass
       name: nginx-qovery
