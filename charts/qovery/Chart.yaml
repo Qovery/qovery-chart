@@ -20,7 +20,7 @@ dependencies:
   repository: file://charts/aws-load-balancer-controller
 - name: ingress-nginx
   condition: services.ingress.ingress-nginx.enabled
-  version: 4.11.2
+  version: 4.11.5
   repository: file://charts/ingress-nginx
 - name: external-dns
   condition: services.dns.external-dns.enabled
