@@ -279,6 +279,7 @@ loki:
     retention_deletes_enabled: set-by-customer # qovery setting
     retention_period: set-by-customer # qovery setting
   loki:
+    podLabels: { }
     # remove if you don't want to use a custom image
     image:
       registry: set-by-customer
@@ -358,6 +359,10 @@ loki:
         chunkBufferSize: 0
         requestTimeout: "0s"
         enableHttp2: true
+      azure:
+        account_name: set-by-customer
+        container_name: set-by-customer
+        use_federated_token: true # Use federated token for authentication
     storage_config:
       gcs:
         bucket_name: set-by-customer
@@ -366,6 +371,10 @@ loki:
         shared_store: set-by-customer
         resync_interval: 5s
         cache_location: /data/loki/boltdb-cache
+      azure:
+        account_name: set-by-customer
+        container_name: set-by-customer
+        use_federated_token: true # Use federated token for authentication
   monitoring:
     dashboards:
       enabled: false
@@ -412,6 +421,8 @@ loki:
     # persistence:
     #   storageClass: set-by-customer
   serviceAccount:
+    name: null
+    labels: { }
     annotations: { }
   
 cert-manager:
