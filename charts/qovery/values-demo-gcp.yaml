@@ -110,6 +110,8 @@ ingress-nginx:
       proxy-body-size: 100m
       # hide Nginx version
       server-tokens: "false"
+      # annotation risk level - needed because of nginx.ingress.kubernetes.io/configuration-snippet in ingress configuration
+      annotations-risk-level: "Critical"
       # enable real IP (client IP)
       enable-real-ip: "false" # set-by-customer
       # passes the incoming X-Forwarded-* headers to upstreams

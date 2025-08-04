@@ -20,11 +20,11 @@ dependencies:
   repository: file://charts/aws-load-balancer-controller
 - name: ingress-nginx
   condition: services.ingress.ingress-nginx.enabled
-  version: 4.11.5
+  version: 4.13.0
   repository: file://charts/ingress-nginx
 - name: external-dns
   condition: services.dns.external-dns.enabled
-  version: 8.3.8
+  version: 8.9.2
   repository: file://charts/external-dns
 - name: promtail
   condition: services.logging.promtail.enabled
@@ -36,7 +36,7 @@ dependencies:
   repository: file://charts/loki
 - name: cert-manager
   condition: services.certificates.cert-manager.enabled
-  version: v1.15.3
+  version: v1.18.2
   repository: file://charts/cert-manager
 - name: cert-manager-configs
   condition: services.certificates.cert-manager-configs.enabled

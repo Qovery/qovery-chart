@@ -110,6 +110,8 @@ ingress-nginx:
       proxy-body-size: 100m
       # hide Nginx version
       server-tokens: "false"
+      # annotation risk level - needed because of nginx.ingress.kubernetes.io/configuration-snippet in ingress configuration
+      annotations-risk-level: "Critical"
       # required for X-Forwarded-for to work
       use-proxy-protocol: "true"
       # enable real IP (client IP)
@@ -209,6 +211,10 @@ ingress-nginx:
         whenUnsatisfiable: DoNotSchedule
   
 external-dns:
+  global:
+    security:
+      ## @param global.security.allowInsecureImages Allows skipping image verification to use the image from our registry
+      allowInsecureImages: true
   # set the provider to use
   provider: set-by-customer
   # keep the config you want to use and remove the others. Configure the provider you want to use.
@@ -452,6 +458,11 @@ cert-manager:
     # WARNING: when the CRDs are removed, all cert-manager custom resources
     # (Certificates, Issuers, ...) will be removed too by the garbage collector.
     keep: true
+  config:
+    featureGates:
+      # Disable the use of Exact PathType in Ingress resources, to work around a bug in ingress-nginx
+      # https://github.com/kubernetes/ingress-nginx/issues/11176
+      ACMEHTTP01IngressPathTypeExact: false
   startupapicheck:
     jobAnnotations:
       helm.sh/hook: post-install,post-upgrade
