@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-07-23T13:18:53.460137653Z"
+    created: "2025-08-04T10:15:12.037204251Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -24,11 +24,11 @@ entries:
     - condition: services.ingress.ingress-nginx.enabled
       name: ingress-nginx
       repository: file://charts/ingress-nginx
-      version: 4.11.5
+      version: 4.13.0
     - condition: services.dns.external-dns.enabled
       name: external-dns
       repository: file://charts/external-dns
-      version: 8.3.8
+      version: 8.9.2
     - condition: services.logging.promtail.enabled
       name: promtail
       repository: file://charts/promtail
@@ -40,7 +40,7 @@ entries:
     - condition: services.certificates.cert-manager.enabled
       name: cert-manager
       repository: file://charts/cert-manager
-      version: v1.15.3
+      version: v1.18.2
     - condition: services.certificates.cert-manager-configs.enabled
       name: cert-manager-configs
       repository: file://charts/cert-manager-configs
@@ -70,7 +70,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: 6bfd75c45ac756a7ce83ea45de32cb27d13c07d3abab374468b7173d0224eae6
+    digest: 262436f4e30221e68fc43c92b4f547d105343cf557d4c2039181a5a04d15f561
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -78,4 +78,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2025-07-23T13:18:53.401535194Z"
+generated: "2025-08-04T10:15:11.979658798Z"
