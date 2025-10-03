@@ -42,6 +42,9 @@ services:
   scaleway:
     q-storageclass-scaleway:
       enabled: false
+  azure:
+    q-storageclass-azure:
+      enabled: false
 qovery:
   clusterId: &clusterId set-by-customer
   clusterShortId: &clusterShortId set-by-customer

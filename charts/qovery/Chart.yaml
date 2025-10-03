@@ -24,7 +24,7 @@ dependencies:
   repository: file://charts/ingress-nginx
 - name: external-dns
   condition: services.dns.external-dns.enabled
-  version: 8.9.2
+  version: 1.19.0
   repository: file://charts/external-dns
 - name: promtail
   condition: services.logging.promtail.enabled

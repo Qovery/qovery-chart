@@ -40,6 +40,9 @@ services:
   scaleway:
     q-storageclass-scaleway:
       enabled: false
+  azure:
+    q-storageclass-azure:
+      enabled: false
 qovery:
   clusterId: &clusterId set-by-customer
   clusterShortId: &clusterShortId set-by-customer
@@ -119,10 +122,14 @@ ingress-nginx:
       # append the remote address to the X-Forwarded-For header instead of replacing it
       compute-full-forwarded-for: "false" # set-by-customer
       # customize http-snippet
+      http-snippet: |
+          # Qovery: declare variables with safe defaults
+          map $host $qovery_com_associated_service_id  { default ""; }
+          map $host $qovery_com_environment_id         { default ""; }
       # customize log-format / set-by-customer
       # default format can be found in the template: https://github.com/nginxinc/kubernetes-ingress/blob/v3.5.2/internal/configs/version1/nginx.tmpl#L44
       # nginx_controller_log_format_upstream can be a json that why we pass it in the value file
-      log-format-escaping-json: "false" # set-by-customer
+      log-format-escaping-json: "true"
       log-format-escaping-none: "false" # set-by-customer
       limit-req-status-code: "503" # set-by-customer
       # Compression configuration (enabled by default)
@@ -190,32 +197,14 @@ ingress-nginx:
         whenUnsatisfiable: DoNotSchedule
   
 external-dns:
-  global:
-    security:
-      ## @param global.security.allowInsecureImages Allows skipping image verification to use the image from our registry
-      allowInsecureImages: true
-  # set the provider to use
-  provider: set-by-customer
-  # keep the config you want to use and remove the others. Configure the provider you want to use.
-  cloudflare:
-    apiToken: set-by-customer
-    email: set-by-customer
-    proxied: set-by-customer
-  pdns:
-    # Qovery DNS: apiUrl: *qoveryDnsUrl
-    apiUrl: set-by-customer
-    # Qovery DNS: apiPort: "443"
-    apiPort: set-by-customer
-    # Qovery DNS: apiKey: "443"
-    apiKey: set-by-customer
   # We have only 1 instance of external-dns, so creating pdb benefits nothing and may create unnecessary constraints
   # i.e: Karpenter will take them into account
   pdb:
     create: false
   # Make external DNS ignore this ingress https://github.com/kubernetes-sigs/external-dns/issues/1910#issuecomment-976371247
-  annotationFilter: external-dns.alpha.kubernetes.io/exclude notin (true)
+  annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
   # set domainFilters to the domain you want to manage: [*domain]
-  domainFilters: set-by-customer
+  domainFilters: []
   triggerLoopOnEvent: true
   policy: sync
   # avoid dns collision with other external-dns instances
@@ -228,8 +217,17 @@ external-dns:
     type: set-by-customer
   # remove if you don't want to use a custom image
   image:
-    registry: set-by-customer
-    repository: set-by-customer
+    repository: public.ecr.aws/r3m4q3r9/pub-mirror-external-dns
+  # set the provider to use
+  provider: set-by-customer
+  # dynamically populated by engine code based on provider
+  # For PDNS: pdns-server and pdns-api-key will be set
+  # For Cloudflare: cloudflare-proxied will be set
+  extraArgs: {} #set-by-customer
+  # env variables are dynamically set by engine code based on provider
+  # For PDNS: PDNS_API_KEY will be set
+  # For Cloudflare: CF_API_TOKEN, CF_API_KEY, CF_API_EMAIL will be set
+  env: [] #set-by-customer
   # set resources
   resources:
     limits:
@@ -251,10 +249,47 @@ promtail:
       # set loki URL: *promtailLokiUrl or set a custom URL
       - url: set-by-customer
     snippets:
+      pipelineStages:
+        - cri: { }
+        - match:
+            selector: '{namespace="nginx-ingress", container="controller"}'
+            stages:
+              - json:
+                  expressions:
+                    qovery_com_associated_service_id: qovery_com_associated_service_id
+                    qovery_com_environment_id: qovery_com_environment_id
+              - labels:
+                  qovery_com_associated_service_id: null
+                  qovery_com_environment_id: null
+        # Try to parse JSON: extract level/severity if present.
+        # If not JSON, just skip silently
+        - json:
+            expressions:
+              level: level
+              severity: severity
+        # Promote whatever we found so far to a Loki label
+        - labels:
+            level:
+        - match:
+            selector: '{level=""}'
+            stages:
+              - regex:
+                  expression: '.*(?:level|severity)[=:]\s*"?(?P<level>info)"?.*'
+              - labels:
+                  level:
+        # Promote whatever we found so far to a Loki label
+        - labels:
+            level:
+        # Detect error patterns in raw log text and set level=error
+        - match:
+            selector: '{level!="info"} |~ "(?i)\\b(emerg|fatal|alert|crit(?:ical)?|err|eror|error|panic|exception)\\b"'
+            stages:
+              - static_labels:
+                  level: error
       extraRelabelConfigs:
         # required this config in order for the cluster agent to retrieve the log of the service
         - action: labelmap
-          regex: __meta_kubernetes_pod_label_(qovery_com_service_id|qovery_com_service_type|qovery_com_environment_id)
+          regex: __meta_kubernetes_pod_label_(qovery_com_service_id|qovery_com_service_type|qovery_com_environment_id|qovery_com_deployment_id)
   # set resources
   resources:
     limits:
@@ -263,17 +298,32 @@ promtail:
     requests:
       cpu: 100m
       memory: 128Mi
+  # In GKE Autopilot clusters, only /var/log/pods is needed to get the workload logs.
+  #
+  #    /var/lib/docker/containers is not needed as Autopilot clusters don't support docker.
+  #    /run/promtail should be optimally a shared volume, however it works (but might send duplicates on restart) if you define it as emptyDir
+  #
+  # https://github.com/grafana/loki/issues/9100#issuecomment-1516781053
+  defaultVolumeMounts:
+    - name: pods
+      mountPath: /var/log/pods
+      readOnly: true
+    - name: run
+      mountPath: /run/promtail
+  defaultVolumes:
+    - name: pods
+      hostPath:
+        path: /var/log/pods
+    - name: run
+      emptyDir: {}
   
 loki:
   # remove if you don't want to use a custom image
   kubectlImage:
     registry: set-by-customer
     repository: set-by-customer
-  tableManager:
-    retention_deletes_enabled: set-by-customer # qovery setting
-    retention_period: set-by-customer # qovery setting
   loki:
-    podLabels: { }
+    podLabels: {}
     # remove if you don't want to use a custom image
     image:
       registry: set-by-customer
@@ -310,8 +360,9 @@ loki:
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       max_concurrent_tail_requests: 100
-      split_queries_by_interval: 15m
+      split_queries_by_interval: 0 # Best performance on single pod
       max_query_lookback: 12w
+      retention_period: set-by-customer
     compactor:
       working_directory: /data/retention
       # configure storage provider for the compactor
@@ -320,20 +371,37 @@ loki:
       retention_enabled: set-by-customer
       retention_delete_delay: 2h
       retention_delete_worker_count: 150
-    schema_config:
+    query_scheduler:
+      # the TSDB index dispatches many more, but each individually smaller, requests.
+      # We increase the pending request queue sizes to compensate.
+      max_outstanding_requests_per_tenant: 32768
+    querier:
+      # Each `querier` component process runs a number of parallel workers to process queries simultaneously.
+      # You may want to adjust this up or down depending on your resource usage
+      # (more available cpu and memory can tolerate higher values and vice versa),
+      # but we find the most success running at around `16` with tsdb
+      max_concurrent: 16
+    schemaConfig:
       configs:
         # set the schema for the index (2020 version can be deleted on a fresh install)
         - from: 2020-05-15
           store: boltdb-shipper
-          object_store: s3
+          object_store: set-by-customer
           schema: v11
           index:
             prefix: index_
             period: 24h
-        - from: 2023-06-01
+        - from: 2022-01-11
           store: boltdb-shipper
-          object_store: s3
+          object_store: set-by-customer
           schema: v12
+          index:
+            prefix: index_
+            period: 24h
+        - from: 2025-10-14
+          store: tsdb
+          object_store: set-by-customer
+          schema: v13
           index:
             prefix: index_
             period: 24h
@@ -365,6 +433,10 @@ loki:
         shared_store: set-by-customer
         resync_interval: 5s
         cache_location: /data/loki/boltdb-cache
+      tsdb_shipper:
+        active_index_directory: /data/loki/tsdb-index
+        shared_store: set-by-customer
+        cache_location: /data/loki/tsdb-cache
       azure:
         account_name: set-by-customer
         container_name: set-by-customer
@@ -403,9 +475,9 @@ loki:
       enabled: false
     extraVolumes:
       - name: data
-        emptyDir: { }
+        emptyDir: {}
       - name: storage
-        emptyDir: { }
+        emptyDir: {}
     extraVolumeMounts:
       - name: data
         mountPath: /data
@@ -416,8 +488,8 @@ loki:
     #   storageClass: set-by-customer
   serviceAccount:
     name: null
-    labels: { }
-    annotations: { }
+    labels: {}
+    annotations: {}
   
 cert-manager:
   global:
