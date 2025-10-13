@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-10-08T07:27:27.969470137Z"
+    created: "2025-10-13T09:56:54.572511075Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -48,7 +48,7 @@ entries:
     - condition: services.certificates.qovery-cert-manager-webhook.enabled
       name: qovery-cert-manager-webhook
       repository: file://charts/qovery-cert-manager-webhook
-      version: 0.1.16
+      version: 0.2.0
     - condition: services.observability.metrics-server.enabled
       name: metrics-server
       repository: file://charts/metrics-server
@@ -70,7 +70,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: e6d76bcdb0b7643c08d895cfd19a1ec5e154b682c813d31dde3b803fbaa67cff
+    digest: eb9b856def9e0542940a20a7688edc0f103b177ee6f55e6909f9f0e1992f8728
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -78,4 +78,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2025-10-08T07:27:27.916192704Z"
+generated: "2025-10-13T09:56:54.520736847Z"
