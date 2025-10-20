@@ -296,6 +296,7 @@ promtail:
                   expressions:
                     level: severity
                   drop_malformed_json: false
+              - labels: { level: null }
         # STAGE 2: Extract from structured text format (Rust tracing, Go logs)
         # ONLY if level is still empty
         # Pattern: TIMESTAMP LEVEL
@@ -304,7 +305,8 @@ promtail:
             selector: '{level=""}'
             stages:
               - regex:
-                  expression: '^\d{4}-\d{2}-\d{2}T[\d:.-]+(?:Z|[+-]\d{2}:\d{2})?\s+(?P<level>TRACE|DEBUG|INFO|WARN(?:ING)?|ERROR|CRIT(?:ICAL)?|FATAL|PANIC)\b'
+                  expression: '^\s*(?:\d{9,}\s+)?\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?(?:\s+\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?)?\s+(?P<level>TRACE|DEBUG|INFO|WARN(?:ING)?|ERROR|CRIT(?:ICAL)?|FATAL|PANIC)\b'
+              - labels: { level: null }
         # STAGE 3: Extract from key=value or key:value patterns
         # ONLY if level is still empty
         # Matches: level=INFO, level:WARN, severity=error, etc.
@@ -313,6 +315,7 @@ promtail:
             stages:
               - regex:
                   expression: '(?i)\b(?:level|severity)[:=]\s*"?(?P<level>trace|debug|info|warn(?:ing)?|error|crit(?:ical)?|fatal|panic)"?'
+              - labels: { level: null }
         # STAGE 4: Normalize all captured levels to lowercase
         - template:
             source: level
@@ -323,7 +326,7 @@ promtail:
             replace: 'warn'
         - replace:
             source: level
-            expression: '^(crit|critical|err|eror)$'
+            expression: '^(err)$'
             replace: 'error'
         # STAGE 5: Publish level label
         - labels:

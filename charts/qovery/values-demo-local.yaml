@@ -144,7 +144,8 @@ external-dns:
   image:
     repository: public.ecr.aws/r3m4q3r9/pub-mirror-external-dns
   # set the provider to use (pdns for Qovery DNS demo)
-  provider: pdns
+  provider:
+    name: pdns
   # Configure PDNS provider
   # pdns-server: environment variable with port concatenation
   # pdns-api-key: environment variable containing the API key
