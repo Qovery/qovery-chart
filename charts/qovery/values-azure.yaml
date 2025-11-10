@@ -221,6 +221,9 @@ external-dns:
   # For PDNS: PDNS_API_KEY will be set
   # For Cloudflare: CF_API_TOKEN, CF_API_KEY, CF_API_EMAIL will be set
   env: [] #set-by-customer
+  # SHA-256 checksum of DNS provider secrets to trigger pod restarts when secrets change
+  podAnnotations:
+    qovery.com/external-dns-secret-checksum: set-by-customer
   # set resources
   resources:
     limits:
@@ -281,6 +284,7 @@ promtail:
         - match:
             selector: '{level=""}'
             stages:
+              - decolorize: {}
               - regex:
                   expression: '^\s*(?:\d{9,}\s+)?\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?(?:\s+\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?)?\s+(?P<level>TRACE|DEBUG|INFO|WARN(?:ING)?|ERROR|CRIT(?:ICAL)?|FATAL|PANIC)\b'
               - labels: { level: null }
@@ -322,11 +326,16 @@ promtail:
   # set resources
   resources:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      memory: 256Mi
     requests:
       cpu: 100m
       memory: 128Mi
+  # for daemonsets, use rolling update with maxUnavailable 35%
+  # it prevents promtail from timeout when updating large clusters (with a lot of nodes)
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 35%
+      maxSurge: 0
 loki:
   # remove if you don't want to use a custom image
   kubectlImage:
