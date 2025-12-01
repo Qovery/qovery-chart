@@ -408,6 +408,20 @@ metrics-server:
   updateStrategy:
     type: RollingUpdate # set-by-customer
   args: [] # set-by-customer
+  replicas: set-by-customer
+  podDisruptionBudget:
+    enabled: set-by-customer
+    minAvailable: set-by-customer
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - metrics-server
+          topologyKey: kubernetes.io/hostname
   # set resources
   resources:
     limits:
