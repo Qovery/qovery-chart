@@ -683,6 +683,11 @@ cert-manager-configs:
       apiUrl: set-by-customer
       # Qovery DNS: apiKey: *jwtToken
       apiKey: set-by-customer
+    route53:
+      accessKeyId: set-by-customer
+      secretAccessKey: set-by-customer
+      region: set-by-customer
+      hostedZoneId: set-by-customer
   
 metrics-server:
   # create api service to be able to use hpa/vpa
