@@ -103,11 +103,25 @@ ingress-nginx:
     admissionWebhooks:
       enabled: true # set-by-customer
     allowSnippetAnnotations: true
+    replicaCount: 1 # set-by-customer
     # enable if you want metrics scrapped by prometheus
     metrics:
       enabled: true # set-by-customer
       serviceMonitor:
         enabled: false # set-by-customer
+        metricRelabelings:
+          - sourceLabels: [__name__]
+            regex: "nginx_ingress_controller_.*"
+            targetLabel: host
+            replacement: ""
+          - sourceLabels: [__name__]
+            regex: "nginx_ingress_controller_.*"
+            targetLabel: exported_namespace
+            replacement: ""
+          - sourceLabels: [__name__]
+            regex: "nginx_ingress_controller_.*"
+            targetLabel: exported_service
+            replacement: ""
     config:
       # set global default file size limit to 100m
       proxy-body-size: 100m
@@ -188,13 +202,22 @@ ingress-nginx:
             - -c
             - (sleep 30 | nc localhost 80)&  sleep 1 ; /wait-shutdown
     topologySpreadConstraints:
+      # Spread across availability zones for better high availability
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: nginx-ingress
+            app.kubernetes.io/component: controller
+        topologyKey: topology.kubernetes.io/zone
+        maxSkew: 1
+        whenUnsatisfiable: ScheduleAnyway
+      # Spread across nodes within zones (best-effort, won't block scheduling)
       - labelSelector:
           matchLabels:
             app.kubernetes.io/instance: nginx-ingress
             app.kubernetes.io/component: controller
         topologyKey: kubernetes.io/hostname
-        maxSkew: 1
-        whenUnsatisfiable: DoNotSchedule
+        maxSkew: 2
+        whenUnsatisfiable: ScheduleAnyway
   
 external-dns:
   # We have only 1 instance of external-dns, so creating pdb benefits nothing and may create unnecessary constraints
@@ -261,6 +284,17 @@ promtail:
         # SPECIAL: Special nginx-ingress enrichment
         - match:
             selector: '{namespace="nginx-ingress", container="controller"}'
+            stages:
+              - json:
+                  expressions:
+                    qovery_com_associated_service_id: qovery_com_associated_service_id
+                    qovery_com_environment_id: qovery_com_environment_id
+              - labels:
+                  qovery_com_associated_service_id: null
+                  qovery_com_environment_id: null
+        # SPECIAL: Special gateway-api enrichment
+        - match:
+            selector: '{namespace="qovery", container="envoy"}'
             stages:
               - json:
                   expressions:
@@ -389,6 +423,7 @@ promtail:
     rollingUpdate:
       maxUnavailable: 35%
       maxSurge: 0
+  
 loki:
   # remove if you don't want to use a custom image
   kubectlImage:
