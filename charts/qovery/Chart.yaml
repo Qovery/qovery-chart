@@ -24,7 +24,7 @@ dependencies:
   repository: file://charts/ingress-nginx
 - name: external-dns
   condition: services.dns.external-dns.enabled
-  version: 1.19.0
+  version: 1.20.0
   repository: file://charts/external-dns
 - name: promtail
   condition: services.logging.promtail.enabled
@@ -32,11 +32,11 @@ dependencies:
   repository: file://charts/promtail
 - name: loki
   condition: services.logging.loki.enabled
-  version: 5.41.4
+  version: 6.55.0
   repository: file://charts/loki
 - name: cert-manager
   condition: services.certificates.cert-manager.enabled
-  version: v1.18.2
+  version: v1.20.0
   repository: file://charts/cert-manager
 - name: cert-manager-configs
   condition: services.certificates.cert-manager-configs.enabled
@@ -48,7 +48,7 @@ dependencies:
   repository: file://charts/qovery-cert-manager-webhook
 - name: metrics-server
   condition: services.observability.metrics-server.enabled
-  version: 3.12.1
+  version: 3.13.0
   repository: file://charts/metrics-server
 - name: qovery-cluster-agent
   condition: services.qovery.qovery-cluster-agent.enabled

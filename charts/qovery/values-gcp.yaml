@@ -186,7 +186,7 @@ ingress-nginx:
     service:
       enabled: true
       annotations:
-        # Qovery managed DNS requieres *.$domain (something like: *.<cluster_id>.<given_dns_name>)
+        # Qovery managed DNS requires *.$domain (something like: *.<cluster_id>.<given_dns_name>)
         external-dns.alpha.kubernetes.io/hostname: *domainWildcard
       externalTrafficPolicy: "Local"
       sessionAffinity: ""
@@ -355,18 +355,31 @@ promtail:
             stages:
               - decolorize: {}
               - regex:
-                  expression: '^\s*(?:\d{9,}\s+)?\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?(?:\s+\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?)?\s+(?P<level>TRACE|DEBUG|INFO|WARN(?:ING)?|ERROR|CRIT(?:ICAL)?|FATAL|PANIC)\b'
+                  expression: '^\s*(?:\d{9,}\s+)?\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?(?:\s+\d{4}-\d{2}-\d{2}T[\d:.\-]+(?:Z|[+-]\d{2}:\d{2})?)?\s+(?P<level>TRACE|VERBOSE|DEBUG|LOG|INFO|NOTICE|WARN(?:ING)?|ERROR|ERR|CRIT(?:ICAL)?|FATAL|PANIC)\b'
               - labels: { level: null }
-        # STAGE 3: Extract from key=value or key:value patterns
+        # STAGE 3: Extract from generic structured text format
+        # ONLY if level is still empty
+        # Pattern examples:
+        # [INFO] Started
+        # 04/10/2026, 3:56:47 PM VERBOSE [AuthGuard] ...
+        # [Nest[] 1 - 04/10/2026, 3:56:47 PM VERBOSE [AuthGuard] ...
+        - match:
+            selector: '{level=""}'
+            stages:
+              - decolorize: {}
+              - regex:
+                  expression: '^\s*(?:\[[^\]]+\]\s+\d+\s+-\s+)?(?:\d{1,4}[/-]\d{1,2}[/-]\d{1,4}(?:,\s+|\s+)\d{1,2}:\d{2}:\d{2}(?:[.,]\d+)?(?:\s+(?:AM|PM))?\s+)?\[?(?P<level>TRACE|VERBOSE|DEBUG|LOG|INFO|NOTICE|WARN(?:ING)?|ERROR|ERR|CRIT(?:ICAL)?|FATAL|PANIC)\]?\b'
+              - labels: { level: null }
+        # STAGE 4: Extract from key=value or key:value patterns
         # ONLY if level is still empty
         # Matches: level=INFO, level:WARN, severity=error, etc.
         - match:
             selector: '{level=""}'
             stages:
               - regex:
-                  expression: '(?i)\b(?:level|severity)[:=]\s*"?(?P<level>trace|debug|info|warn(?:ing)?|error|crit(?:ical)?|fatal|panic)"?'
+                  expression: '(?i)\b(?:level|severity)[:=]\s*"?(?P<level>trace|verbose|debug|log|info|notice|warn(?:ing)?|error|err|crit(?:ical)?|fatal|panic)"?'
               - labels: { level: null }
-        # STAGE 4: Normalize all captured levels to lowercase
+        # STAGE 5: Normalize all captured levels to lowercase
         - template:
             source: level
             template: 'set-by-customer'
@@ -376,12 +389,16 @@ promtail:
             replace: 'warn'
         - replace:
             source: level
+            expression: '^(verbose)$'
+            replace: 'debug'
+        - replace:
+            source: level
             expression: '^(err)$'
             replace: 'error'
-        # STAGE 5: Publish level label
+        # STAGE 6: Publish level label
         - labels:
             level: null
-        # STAGE 6: Last resort - detect error keywords in log text
+        # STAGE 7: Last resort - detect error keywords in log text
         # ONLY if level is STILL empty
         - match:
             selector: '{level=""} |~ "(?i)\\b(emerg|fatal|alert|crit(?:ical)?|err|eror|error|panic|exception)\\b"'
@@ -426,15 +443,13 @@ promtail:
   
 loki:
   # remove if you don't want to use a custom image
-  kubectlImage:
-    registry: set-by-customer
-    repository: set-by-customer
   loki:
     podLabels: {}
     # remove if you don't want to use a custom image
     image:
       registry: set-by-customer
       repository: set-by-customer
+      tag: "3.7.1"
     # set if you want to use authentication
     auth_enabled: false
     commonConfig:
@@ -445,25 +460,9 @@ loki:
       chunk_idle_period: 3m
       chunk_block_size: 262144
       chunk_retain_period: 1m
-      max_transfer_retries: 0
-      lifecycler:
-        ring:
-          kvstore:
-            store: memberlist
-          replication_factor: 1
-    memberlistConfig:
-      abort_if_cluster_join_fails: false
-      bind_port: 7946
-      join_members:
-        # set loki headless service
-        - loki-headless.logging.svc:7946
-      max_join_backoff: 1m
-      max_join_retries: 10
-      min_join_backoff: 1s
     limits_config:
       ingestion_rate_mb: 20
       ingestion_burst_size_mb: 30
-      enforce_metric_name: false
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       max_concurrent_tail_requests: 100
@@ -471,13 +470,13 @@ loki:
       max_query_lookback: 12w
       retention_period: set-by-customer
     compactor:
-      working_directory: /data/retention
-      # configure storage provider for the compactor
-      shared_store: set-by-customer
+      working_directory: /var/loki/retention
       compaction_interval: 10m
       retention_enabled: set-by-customer
       retention_delete_delay: 2h
       retention_delete_worker_count: 150
+      # required in Loki 3.x when retention_enabled is true
+      delete_request_store: set-by-customer
     query_scheduler:
       # the TSDB index dispatches many more, but each individually smaller, requests.
       # We increase the pending request queue sizes to compensate.
@@ -536,18 +535,24 @@ loki:
       gcs:
         bucket_name: set-by-customer
       boltdb_shipper:
-        active_index_directory: /data/loki/index
-        shared_store: set-by-customer
+        # shared_store removed in Loki 3.x
+        active_index_directory: /var/loki/index
         resync_interval: 5s
-        cache_location: /data/loki/boltdb-cache
+        cache_location: /var/loki/boltdb-cache
       tsdb_shipper:
-        active_index_directory: /data/loki/tsdb-index
-        shared_store: set-by-customer
-        cache_location: /data/loki/tsdb-cache
+        # shared_store removed in Loki 3.x
+        active_index_directory: /var/loki/tsdb-index
+        cache_location: /var/loki/tsdb-cache
       azure:
         account_name: set-by-customer
         container_name: set-by-customer
         use_federated_token: true # Use federated token for authentication
+  lokiCanary:
+    enabled: false
+  chunksCache:
+    enabled: false
+  resultsCache:
+    enabled: false
   monitoring:
     dashboards:
       enabled: false
@@ -567,10 +572,23 @@ loki:
     enabled: false
   gateway:
     enabled: false
-  # set the single binary version for basic usage
+  sidecar:
+    rules:
+      enabled: set-by-customer
+  # singleBinary is disabled here (replicas: 0) for object-storage clusters;
+  # the loki_single_binary overlay flips it back on when deployment_mode = SingleBinary.
+  deploymentMode: SimpleScalable
   singleBinary:
+    replicas: 0
+    resources:
+      limits:
+        cpu: set-by-customer
+        memory: set-by-customer
+      requests:
+        cpu: set-by-customer
+        memory: set-by-customer
+  write:
     replicas: 1
-    # set resources
     resources:
       limits:
         cpu: set-by-customer
@@ -579,20 +597,28 @@ loki:
         cpu: set-by-customer
         memory: set-by-customer
     persistence:
-      enabled: false
-    extraVolumes:
-      - name: data
-        emptyDir: {}
-      - name: storage
-        emptyDir: {}
-    extraVolumeMounts:
-      - name: data
-        mountPath: /data
-      - name: storage
-        mountPath: /var/loki
-    # set disk persistence to reduce data loss in case of pod crash
-    # persistence:
-    #   storageClass: set-by-customer
+      # emptyDir avoids requiring a PVC provisioner (no durability needed here).
+      volumeClaimsEnabled: false
+  read:
+    replicas: 1
+    resources:
+      limits:
+        cpu: set-by-customer
+        memory: set-by-customer
+      requests:
+        cpu: set-by-customer
+        memory: set-by-customer
+  backend:
+    replicas: 1
+    resources:
+      limits:
+        cpu: set-by-customer
+        memory: set-by-customer
+      requests:
+        cpu: set-by-customer
+        memory: set-by-customer
+    persistence:
+      volumeClaimsEnabled: false
   serviceAccount:
     name: null
     labels: {}
@@ -621,6 +647,11 @@ cert-manager:
       # Disable the use of Exact PathType in Ingress resources, to work around a bug in ingress-nginx
       # https://github.com/kubernetes/ingress-nginx/issues/11176
       ACMEHTTP01IngressPathTypeExact: false
+      ListenerSets: null # set-by-customer
+    apiVersion: null # set-by-customer
+    kind: null # set-by-customer
+    enableGatewayAPI: null # set-by-customer
+    enableGatewayAPIListenerSet: null # set-by-customer
   startupapicheck:
     jobAnnotations:
       helm.sh/hook: post-install,post-upgrade
@@ -704,6 +735,9 @@ cert-manager-configs:
   externalDnsProvider: set-by-customer
   # you can use [*domain] or the ones you want
   managedDns: set-by-customer
+  k8sDeployApiGateway: set-by-customer
+  k8sUseApiGateway: set-by-customer
+  k8sRemoveNginx: set-by-customer
   acme:
     letsEncrypt:
       # Let's encrypt email address for notifications

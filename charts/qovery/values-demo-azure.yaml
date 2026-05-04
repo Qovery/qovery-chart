@@ -179,7 +179,7 @@ ingress-nginx:
     service:
       enabled: true
       annotations:
-        # Qovery managed DNS requieres *.$domain (something like: *.<cluster_id>.<given_dns_name>)
+        # Qovery managed DNS requires *.$domain (something like: *.<cluster_id>.<given_dns_name>)
         external-dns.alpha.kubernetes.io/hostname: *domainWildcard
       externalTrafficPolicy: "Local"
       sessionAffinity: ""
@@ -344,6 +344,7 @@ loki:
     enabled: false
   gateway:
     enabled: false
+  deploymentMode: SingleBinary
   singleBinary:
     replicas: 1
     persistence:
