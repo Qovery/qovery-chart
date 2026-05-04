@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-03-02T09:47:42.030619978Z"
+    created: "2026-05-04T15:26:16.546212661Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -28,7 +28,7 @@ entries:
     - condition: services.dns.external-dns.enabled
       name: external-dns
       repository: file://charts/external-dns
-      version: 1.19.0
+      version: 1.20.0
     - condition: services.logging.promtail.enabled
       name: promtail
       repository: file://charts/promtail
@@ -36,11 +36,11 @@ entries:
     - condition: services.logging.loki.enabled
       name: loki
       repository: file://charts/loki
-      version: 5.41.4
+      version: 6.55.0
     - condition: services.certificates.cert-manager.enabled
       name: cert-manager
       repository: file://charts/cert-manager
-      version: v1.18.2
+      version: v1.20.0
     - condition: services.certificates.cert-manager-configs.enabled
       name: cert-manager-configs
       repository: file://charts/cert-manager-configs
@@ -52,7 +52,7 @@ entries:
     - condition: services.observability.metrics-server.enabled
       name: metrics-server
       repository: file://charts/metrics-server
-      version: 3.12.1
+      version: 3.13.0
     - condition: services.qovery.qovery-cluster-agent.enabled
       name: qovery-cluster-agent
       repository: file://charts/qovery-cluster-agent
@@ -70,7 +70,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: ce896524404b9ce3ae498fbdc08267b04316192459ea8348f23bcd39db6c5e8f
+    digest: e49609f8291930bf582efc07c987e6732ce8746735cbecdf359d0a83aced8938
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -78,4 +78,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-1.0.0.tgz
     version: 1.0.0
-generated: "2026-03-02T09:47:41.979039931Z"
+generated: "2026-05-04T15:26:16.495371952Z"
