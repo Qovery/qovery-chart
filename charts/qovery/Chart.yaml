@@ -26,10 +26,10 @@ dependencies:
   condition: services.dns.external-dns.enabled
   version: 1.21.1
   repository: file://charts/external-dns
-- name: promtail
-  condition: services.logging.promtail.enabled
-  version: 6.17.0
-  repository: file://charts/promtail
+- name: alloy
+  condition: services.logging.alloy.enabled
+  version: 1.10.0
+  repository: file://charts/alloy
 - name: loki
   condition: services.logging.loki.enabled
   version: 6.55.0

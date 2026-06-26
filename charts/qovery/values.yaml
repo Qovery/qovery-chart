@@ -17,7 +17,7 @@ services:
   logging:
     loki:
       enabled: false
-    promtail:
+    alloy:
       enabled: false
   certificates:
     cert-manager:
@@ -101,7 +101,7 @@ qovery-engine:
     ORGANIZATION_ID: '*organizationId'
 ingress-nginx: {}
 external-dns: {}
-promtail: {}
+alloy: {}
 loki: {}
 cert-manager: {}
 qovery-cert-manager-webhook: {}

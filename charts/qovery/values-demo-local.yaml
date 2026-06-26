@@ -17,7 +17,7 @@ services:
   logging:
     loki:
       enabled: false
-    promtail:
+    alloy:
       enabled: false
   certificates:
     cert-manager:
@@ -168,7 +168,7 @@ external-dns:
       cpu: 50m
       memory: 100Mi
   
-promtail: {}
+alloy: {}
 loki: {}
 cert-manager:
   fullnameOverride: cert-manager
