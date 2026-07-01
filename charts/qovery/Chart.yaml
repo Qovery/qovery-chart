@@ -58,6 +58,10 @@ dependencies:
   condition: services.qovery.qovery-shell-agent.enabled
   version: 0.1.0
   repository: file://charts/qovery-shell-agent
+- name: qovery-operator
+  condition: services.qovery.qovery-operator.enabled
+  version: 0.1.0
+  repository: file://charts/qovery-operator
 - name: qovery-engine
   condition: services.qovery.qovery-engine.enabled
   version: 0.0.0
