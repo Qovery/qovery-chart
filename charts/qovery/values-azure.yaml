@@ -5,7 +5,7 @@ services:
     qovery-shell-agent:
       enabled: true
     qovery-operator:
-      enabled: true
+      enabled: false
     qovery-engine:
       enabled: true
     qovery-priority-class:
