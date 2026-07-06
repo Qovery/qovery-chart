@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-07-02T13:16:52.204568733Z"
+    created: "2026-07-06T13:49:31.449726746Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -74,7 +74,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: 3b54ddb72a87379e08e92ef085df9684c9bed9ddbf14c31bbe5925a274158c96
+    digest: d93020cf5f216f958b53fdd60f49581ec574b4cf58a844d3f8a2db8e6fdcc723
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -85,9 +85,9 @@ entries:
   qovery-cluster-agent:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-07-02T13:16:52.205031115Z"
+    created: "2026-07-06T13:49:31.450191896Z"
     description: A Helm chart for Kubernetes
-    digest: 482c7b36d42b27c96bd5e9811eeb022e8e85059bc2a8e7fdd5395513d277687d
+    digest: e5cab94be7ad14a2081cc02c9fccdb802c5c6c53959e43f0a336cc5c6bd36ddb
     name: qovery-cluster-agent
     type: application
     urls:
@@ -96,9 +96,9 @@ entries:
   qovery-operator:
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2026-07-02T13:16:52.205324241Z"
+    created: "2026-07-06T13:49:31.450511233Z"
     description: Qovery operator for Engine worker orchestration
-    digest: 643c36d529b96502c1cdbbdf3cd604ac3d6c376b6a1c2eec040d16b76c397b2e
+    digest: eb62fe0d7da3637683fe2aad7b6f6e5c349569a8331c3e48494d7da3eda9a112
     name: qovery-operator
     type: application
     urls:
@@ -114,4 +114,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-02T13:16:52.142228735Z"
+generated: "2026-07-06T13:49:31.387632297Z"
