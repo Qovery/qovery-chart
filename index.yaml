@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-07-06T13:49:31.449726746Z"
+    created: "2026-07-07T14:13:56.071845145Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -74,7 +74,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: d93020cf5f216f958b53fdd60f49581ec574b4cf58a844d3f8a2db8e6fdcc723
+    digest: 5812c61bf01a0e110104276f7a6c7c9b1102f4aef0a1008e0d9ebd0e64cd10fd
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -85,9 +85,9 @@ entries:
   qovery-cluster-agent:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-07-06T13:49:31.450191896Z"
+    created: "2026-07-07T14:13:56.072365288Z"
     description: A Helm chart for Kubernetes
-    digest: e5cab94be7ad14a2081cc02c9fccdb802c5c6c53959e43f0a336cc5c6bd36ddb
+    digest: b2b3ea9b3336c750c7de2f65858ca01dca4dadef1783d803281787268057a2db
     name: qovery-cluster-agent
     type: application
     urls:
@@ -96,9 +96,9 @@ entries:
   qovery-operator:
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2026-07-06T13:49:31.450511233Z"
+    created: "2026-07-07T14:13:56.072728127Z"
     description: Qovery operator for Engine worker orchestration
-    digest: eb62fe0d7da3637683fe2aad7b6f6e5c349569a8331c3e48494d7da3eda9a112
+    digest: a839a8908577c6a0ed2f82216f819584af59401faa26ee2442e406f1b756f145
     name: qovery-operator
     type: application
     urls:
@@ -114,4 +114,15 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-06T13:49:31.387632297Z"
+  qovery-shell-agent:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-07-07T14:13:56.073071649Z"
+    description: A Helm chart for Kubernetes
+    digest: 9183234ae4f469cc17dc22ef1523efa562dd78f7a33f81b091d67f4fd298d999
+    name: qovery-shell-agent
+    type: application
+    urls:
+    - https://Qovery.github.io/qovery-chart/qovery-shell-agent-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-07-07T14:13:56.007362701Z"
