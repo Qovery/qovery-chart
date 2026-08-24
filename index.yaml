@@ -3,7 +3,7 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-07-20T08:02:58.331180462Z"
+    created: "2026-08-24T09:56:23.542815738Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
       name: q-storageclass-aws
@@ -17,14 +17,32 @@ entries:
       name: q-storageclass-scaleway
       repository: file://charts/q-storageclass-scaleway
       version: 0.1.0
+    - condition: services.azure.q-storageclass-azure.enabled
+      name: q-storageclass-azure
+      repository: file://charts/q-storageclass-azure
+      version: 0.1.0
     - condition: services.aws.aws-load-balancer-controller.enabled
       name: aws-load-balancer-controller
       repository: file://charts/aws-load-balancer-controller
-      version: 1.8.3
-    - condition: services.ingress.ingress-nginx.enabled
-      name: ingress-nginx
-      repository: file://charts/ingress-nginx
-      version: 4.13.0
+      version: 3.4.2
+    - alias: envoy-gateway-crd
+      condition: services.ingress.envoy-gateway-crd.enabled
+      name: gateway-crds-helm
+      repository: file://charts/envoy-gateway-crd
+      version: v1.8.3
+    - alias: envoy-gateway
+      condition: services.ingress.envoy-gateway.enabled
+      name: gateway-helm
+      repository: file://charts/envoy-gateway
+      version: v1.8.3
+    - condition: services.ingress.qovery-gateway-class.enabled
+      name: qovery-gateway-class
+      repository: file://charts/qovery-gateway-class
+      version: 0.1.0
+    - condition: services.ingress.qovery-cluster-gateway.enabled
+      name: qovery-cluster-gateway
+      repository: file://charts/qovery-cluster-gateway
+      version: 0.1.0
     - condition: services.dns.external-dns.enabled
       name: external-dns
       repository: file://charts/external-dns
@@ -64,7 +82,7 @@ entries:
     - condition: services.qovery.qovery-operator.enabled
       name: qovery-operator
       repository: file://charts/qovery-operator
-      version: 0.2.0
+      version: 0.2.1
     - condition: services.qovery.qovery-engine.enabled
       name: qovery-engine
       repository: file://charts/qovery-engine
@@ -74,7 +92,7 @@ entries:
       repository: file://charts/qovery-priority-class
       version: 0.2.0
     description: Qovery Helm chart - self managed version
-    digest: 90027a11f7ba9ab50e4a2e615a930ea5a3aae8307f46b25932dd2e3ad1f8a606
+    digest: 5238d36b074e6c93f8ac8466a41374f7b45d3c30d24ccfd3f0c871433d2fbce0
     home: https://www.qovery.com/
     icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
     name: qovery
@@ -125,4 +143,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-shell-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-20T08:02:58.275547856Z"
+generated: "2026-08-24T09:56:23.433287073Z"
