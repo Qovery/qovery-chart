@@ -14,14 +14,32 @@ dependencies:
   condition: services.scaleway.q-storageclass-scaleway.enabled
   version: 0.1.0
   repository: file://charts/q-storageclass-scaleway
+- name: q-storageclass-azure
+  condition: services.azure.q-storageclass-azure.enabled
+  version: 0.1.0
+  repository: file://charts/q-storageclass-azure
 - name: aws-load-balancer-controller
   condition: services.aws.aws-load-balancer-controller.enabled
-  version: 1.8.3
+  version: 3.4.2
   repository: file://charts/aws-load-balancer-controller
-- name: ingress-nginx
-  condition: services.ingress.ingress-nginx.enabled
-  version: 4.13.0
-  repository: file://charts/ingress-nginx
+- name: gateway-crds-helm
+  alias: envoy-gateway-crd
+  condition: services.ingress.envoy-gateway-crd.enabled
+  version: v1.8.3
+  repository: file://charts/envoy-gateway-crd
+- name: gateway-helm
+  alias: envoy-gateway
+  condition: services.ingress.envoy-gateway.enabled
+  version: v1.8.3
+  repository: file://charts/envoy-gateway
+- name: qovery-gateway-class
+  condition: services.ingress.qovery-gateway-class.enabled
+  version: 0.1.0
+  repository: file://charts/qovery-gateway-class
+- name: qovery-cluster-gateway
+  condition: services.ingress.qovery-cluster-gateway.enabled
+  version: 0.1.0
+  repository: file://charts/qovery-cluster-gateway
 - name: external-dns
   condition: services.dns.external-dns.enabled
   version: 1.21.1
@@ -60,7 +78,7 @@ dependencies:
   repository: file://charts/qovery-shell-agent
 - name: qovery-operator
   condition: services.qovery.qovery-operator.enabled
-  version: 0.2.0
+  version: 0.2.1
   repository: file://charts/qovery-operator
 - name: qovery-engine
   condition: services.qovery.qovery-engine.enabled

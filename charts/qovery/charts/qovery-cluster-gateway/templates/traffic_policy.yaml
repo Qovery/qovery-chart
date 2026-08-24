@@ -1,0 +1,90 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: qovery-cluster-public-gateway-client-traffic-policy
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  {{- $numHops := -1 }}
+  {{- $trustedCIDRs := list }}
+  {{- if .Values.gateway.qoveryPublic }}
+    {{- if .Values.gateway.qoveryPublic.xForwardedFor }}
+      {{- if hasKey .Values.gateway.qoveryPublic.xForwardedFor "numberTrustedHops" }}
+        {{- $rawNumHops := .Values.gateway.qoveryPublic.xForwardedFor.numberTrustedHops }}
+        {{- if and (kindIs "string" $rawNumHops) (regexMatch "^-?[0-9]+$" (trim $rawNumHops)) }}
+          {{- $numHops = int $rawNumHops }}
+        {{- else if or (kindIs "int" $rawNumHops) (kindIs "int64" $rawNumHops) (kindIs "float64" $rawNumHops) }}
+          {{- $numHops = int $rawNumHops }}
+        {{- end }}
+      {{- end }}
+      {{- if hasKey .Values.gateway.qoveryPublic.xForwardedFor "trustedCIDRs" }}
+        {{- $rawTrustedCIDRs := .Values.gateway.qoveryPublic.xForwardedFor.trustedCIDRs }}
+        {{- if kindIs "slice" $rawTrustedCIDRs }}
+          {{- $trustedCIDRs = $rawTrustedCIDRs }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- $useTrustedCIDRs := gt (len $trustedCIDRs) 0 }}
+  {{- if or $useTrustedCIDRs (ge $numHops 0) }}
+  # Envoy Gateway validates xForwardedFor as one-of:
+  # use either trustedCIDRs or numTrustedHops, never both.
+  # If both are provided by settings, trustedCIDRs takes precedence.
+  clientIPDetection:
+    xForwardedFor:
+      {{- if $useTrustedCIDRs }}
+      trustedCIDRs:
+      {{- range $trustedCIDRs }}
+        - {{ . | quote }}
+      {{- end }}
+      {{- else }}
+      numTrustedHops: {{ $numHops }}
+      {{- end }}
+  {{- end }}
+  {{- $streamIdleTimeoutSeconds := -1 }}
+  {{- if .Values.gateway.qoveryPublic }}
+    {{- if .Values.gateway.qoveryPublic.timeout }}
+      {{- if .Values.gateway.qoveryPublic.timeout.http }}
+        {{- if hasKey .Values.gateway.qoveryPublic.timeout.http "streamIdleTimeoutSeconds" }}
+          {{- $rawStreamIdleTimeoutSeconds := .Values.gateway.qoveryPublic.timeout.http.streamIdleTimeoutSeconds }}
+          {{- if and (kindIs "string" $rawStreamIdleTimeoutSeconds) (regexMatch "^[0-9]+$" (trim $rawStreamIdleTimeoutSeconds)) }}
+            {{- $streamIdleTimeoutSeconds = int $rawStreamIdleTimeoutSeconds }}
+          {{- else if or (kindIs "int" $rawStreamIdleTimeoutSeconds) (kindIs "int64" $rawStreamIdleTimeoutSeconds) (kindIs "float64" $rawStreamIdleTimeoutSeconds) }}
+            {{- $streamIdleTimeoutSeconds = int $rawStreamIdleTimeoutSeconds }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- if ge $streamIdleTimeoutSeconds 0 }}
+  timeout:
+    http:
+      streamIdleTimeout: "{{ $streamIdleTimeoutSeconds }}s"
+  {{- end }}
+  {{- with .Values.gateway.qoveryPublic.clientValidation }}
+    {{- with .caCertificates }}
+      {{- if gt (len .) 0 }}
+  tls:
+    clientValidation:
+      caCertificateRefs:
+      {{- range . }}
+        - kind: Secret
+          name: {{ .name | quote }}
+          namespace: {{ .namespace | quote }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  path:
+    disableMergeSlashes: {{ .Values.gateway.qoveryPublic.path.disableMergeSlashes }}
+    escapedSlashesAction: {{ .Values.gateway.qoveryPublic.path.escapedSlashesAction }}
+  headers:
+    enableEnvoyHeaders: true # add the "X-Envoy-" headers to requests and responses
+    withUnderscoresAction: {{ .Values.gateway.qoveryPublic.withUnderscoresAction }} # avoid rejecting requests when intermediaries send underscored headers
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: qovery-cluster-public-gateway
+  {{- if .Values.gateway.qoveryPublic.enableProxyProtocol }}
+  proxyProtocol:
+    optional: {{ if and .Values.gateway.qoveryPublic.proxyProtocol (hasKey .Values.gateway.qoveryPublic.proxyProtocol "optional") }}{{ .Values.gateway.qoveryPublic.proxyProtocol.optional }}{{ else }}true{{ end }}
+  {{- end }}

@@ -13,6 +13,14 @@ services:
   ingress:
     ingress-nginx:
       enabled: false
+    envoy-gateway-crd:
+      enabled: false
+    envoy-gateway:
+      enabled: false
+    qovery-gateway-class:
+      enabled: false
+    qovery-cluster-gateway:
+      enabled: false
   dns:
     external-dns:
       enabled: false

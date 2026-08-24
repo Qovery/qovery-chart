@@ -1,0 +1,81 @@
+gatewayClass:
+  qoveryPublic:
+    enable: true
+    hpa:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPercentage: null
+      targetMemoryUtilizationPercentage: null
+    accessLog:
+      # format: Specify a custom JSON string to override the default format
+      # Leave empty ("") to use the default format defined in the template
+      # Example custom format (single line):
+      # format: '{"start_time": "%START_TIME%", "method": "%REQ(:METHOD)%", "response_code": "%RESPONSE_CODE%"}'
+      # Or multiline:
+      # format: |
+      #   {
+      #     "start_time": "%START_TIME%",
+      #     "method": "%REQ(:METHOD)%",
+      #     "response_code": "%RESPONSE_CODE%"
+      #   }
+      format: ""
+    affinity: {}
+    topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: proxy
+        topologyKey: topology.kubernetes.io/zone
+        maxSkew: 1
+        whenUnsatisfiable: ScheduleAnyway
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: proxy
+        topologyKey: kubernetes.io/hostname
+        maxSkew: 1
+        whenUnsatisfiable: ScheduleAnyway
+    tolerations: []
+    pdb:
+      enabled: true
+      minAvailable: null
+      maxUnavailable: 1
+  qoveryPrivate:
+    enable: true
+    hpa:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPercentage: null
+      targetMemoryUtilizationPercentage: null
+    accessLog:
+      # format: Specify a custom JSON string to override the default format
+      # Leave empty ("") to use the default format defined in the template
+      # Example custom format (single line):
+      # format: '{"start_time": "%START_TIME%", "method": "%REQ(:METHOD)%", "response_code": "%RESPONSE_CODE%"}'
+      # Or multiline:
+      # format: |
+      #   {
+      #     "start_time": "%START_TIME%",
+      #     "method": "%REQ(:METHOD)%",
+      #     "response_code": "%RESPONSE_CODE%"
+      #   }
+      format: ""
+    affinity: {}
+    topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: proxy
+        topologyKey: topology.kubernetes.io/zone
+        maxSkew: 1
+        whenUnsatisfiable: ScheduleAnyway
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: proxy
+        topologyKey: kubernetes.io/hostname
+        maxSkew: 1
+        whenUnsatisfiable: ScheduleAnyway
+    tolerations: []
+    pdb:
+      enabled: true
+      minAvailable: null
+      maxUnavailable: 1

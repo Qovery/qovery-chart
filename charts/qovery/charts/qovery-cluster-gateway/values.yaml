@@ -1,0 +1,67 @@
+dns:
+  domain: ""
+  cloudflareProxied: false
+
+certManagerNamespace: "cert-manager"
+
+gateway:
+  qoveryPublic:
+    enable: true
+    annotations: {}
+    enableProxyProtocol: true
+    proxyProtocol:
+      optional: true
+    withUnderscoresAction: "DropHeader"
+    xForwardedFor:
+      numberTrustedHops: null
+      trustedCIDRs: []
+    timeout:
+      http:
+        streamIdleTimeoutSeconds: null
+    path:
+      disableMergeSlashes: false
+      escapedSlashesAction: "UnescapeAndRedirect"
+    customHttpErrors:
+      default: ""
+    compression:
+      enable: true
+    defaultBackend:
+      enable: false
+      image: null
+      tag: null
+
+envoyProxy:
+  qoveryPublic:
+    accessLog:
+      format: ""
+    provider:
+      kubernetes:
+        envoyDeployment:
+          pod:
+            affinity: {}
+            topologySpreadConstraints:
+              - labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: proxy
+                topologyKey: topology.kubernetes.io/zone
+                maxSkew: 1
+                whenUnsatisfiable: ScheduleAnyway
+              - labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: proxy
+                topologyKey: kubernetes.io/hostname
+                maxSkew: 1
+                whenUnsatisfiable: ScheduleAnyway
+            tolerations: []
+        envoyHpa: {}
+        envoyPDB:
+          maxUnavailable: 1
+        envoyService:
+          annotations: {}
+
+metrics:
+  enabled: false
+  podMonitor:
+    enabled: false
+    additionalLabels:
+      release: kube-prometheus-stack

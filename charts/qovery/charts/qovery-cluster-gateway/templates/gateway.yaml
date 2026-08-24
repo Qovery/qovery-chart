@@ -1,0 +1,130 @@
+# global gateways, one public per cluster
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: qovery-cluster-public-gateway-envoy-proxy
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  {{- if .Values.envoyProxy.qoveryPublic.accessLog }}
+  telemetry:
+    accessLog:
+      settings:
+        - format:
+            type: "JSON"
+            {{- $customFormat := .Values.envoyProxy.qoveryPublic.accessLog.format | trim }}
+            {{- if and (ne $customFormat "") (ne $customFormat "set-by-engine") }}
+            {{- $decodedFormat := $customFormat | b64dec }}
+            json: {{ $decodedFormat | fromJson | toYaml | nindent 14 }}
+            {{- else }}
+            json:
+              start_time: "%START_TIME%"
+              method: "%REQ(:METHOD)%"
+              x-envoy-origin-path: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+              protocol: "%PROTOCOL%"
+              response_code: "%RESPONSE_CODE%"
+              response_flags: "%RESPONSE_FLAGS%"
+              response_code_details: "%RESPONSE_CODE_DETAILS%"
+              connection_termination_details: "%CONNECTION_TERMINATION_DETAILS%"
+              upstream_transport_failure_reason: "%UPSTREAM_TRANSPORT_FAILURE_REASON%"
+              bytes_received: "%BYTES_RECEIVED%"
+              bytes_sent: "%BYTES_SENT%"
+              duration: "%DURATION%"
+              x-envoy-upstream-service-time: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
+              x-forwarded-for: "%REQ(X-FORWARDED-FOR)%"
+              user-agent: "%REQ(USER-AGENT)%"
+              x-request-id: "%REQ(X-REQUEST-ID)%"
+              ":authority": "%REQ(:AUTHORITY)%"
+              upstream_host: "%UPSTREAM_HOST%"
+              upstream_cluster: "%UPSTREAM_CLUSTER%"
+              upstream_local_address: "%UPSTREAM_LOCAL_ADDRESS%"
+              downstream_local_address: "%DOWNSTREAM_LOCAL_ADDRESS%"
+              downstream_remote_address: "%DOWNSTREAM_REMOTE_ADDRESS%"
+              requested_server_name: "%REQUESTED_SERVER_NAME%"
+              route_name: "%ROUTE_NAME%"
+              qovery_com_associated_service_id: "%REQ(x-qovery-com-associated-service-id)%"
+              qovery_com_environment_id: "%REQ(x-qovery-com-environment-id)%"
+            {{- end }}
+          sinks:
+            - type: File
+              file:
+                path: /dev/stdout
+  {{- end }}
+  provider:
+    type: Kubernetes
+    kubernetes:
+      {{- with .Values.envoyProxy.qoveryPublic.provider.kubernetes.envoyDeployment }}
+        {{- $pod := .pod }}
+        {{- if or $pod.affinity $pod.topologySpreadConstraints $pod.tolerations }}
+      envoyDeployment:
+        pod:
+          {{- if $pod.affinity }}
+          affinity: {{- toYaml $pod.affinity | nindent 12 }}
+          {{- end }}
+          {{- if $pod.topologySpreadConstraints }}
+          topologySpreadConstraints: {{- toYaml $pod.topologySpreadConstraints | nindent 12 }}
+          {{- end }}
+          {{- if $pod.tolerations }}
+          tolerations: {{- toYaml $pod.tolerations | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.envoyProxy.qoveryPublic.provider.kubernetes.envoyHpa }}
+      envoyHpa: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.envoyProxy.qoveryPublic.provider.kubernetes.envoyPDB }}
+      envoyPDB: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      envoyService:
+        {{- if .Values.envoyProxy.qoveryPublic.provider.kubernetes.envoyService.annotations }}
+        annotations:
+        {{- range $key, $value := .Values.envoyProxy.qoveryPublic.provider.kubernetes.envoyService.annotations }}
+        {{- if $value }}
+          {{ $key }}: {{ tpl ($value | toString) $ | quote }}
+        {{- end }}
+        {{- end }}
+        {{- else }}
+        annotations: {}
+        {{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: qovery-cluster-public-gateway
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  {{- if .Values.gateway.qoveryPublic.annotations }}
+  annotations:
+  {{- range $key, $value := .Values.gateway.qoveryPublic.annotations }}
+    {{ $key }}: {{ tpl ($value | toString) $ | quote }}
+  {{- end }}
+  {{- end }}
+spec:
+  gatewayClassName: qovery-public-gateway
+  # Allow ListenerSets from all namespaces to attach to this Gateway
+  allowedListeners:
+    namespaces:
+      from: All
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: qovery-cluster-public-gateway-envoy-proxy
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: All  # Allow routes from all namespaces
+  - name: https
+    protocol: HTTPS
+    port: 443
+    allowedRoutes:
+      namespaces:
+        from: All
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: letsencrypt-acme-qovery-cert
+        namespace: "{{ .Values.certManagerNamespace }}"

@@ -12,6 +12,14 @@ services:
       enabled: true
   ingress:
     ingress-nginx:
+      enabled: false
+    envoy-gateway-crd:
+      enabled: true
+    envoy-gateway:
+      enabled: true
+    qovery-gateway-class:
+      enabled: true
+    qovery-cluster-gateway:
       enabled: true
   dns:
     external-dns:
@@ -109,170 +117,172 @@ qovery-engine:
     GRPC_SERVER: *engineGatewayUrl
     LIB_ROOT_DIR: /home/qovery/lib
     ORGANIZATION_ID: *organizationId
-ingress-nginx:
-  controller:
-    useComponentLabel: true
-    admissionWebhooks:
-      enabled: true # set-by-customer
-    allowSnippetAnnotations: true
-    replicaCount: 1 # set-by-customer
-    # enable if you want metrics scrapped by prometheus
-    metrics:
-      enabled: true # set-by-customer
-      serviceMonitor:
-        enabled: false # set-by-customer
-        metricRelabelings:
-          - sourceLabels: [__name__]
-            regex: "nginx_ingress_controller_.*"
-            targetLabel: host
-            replacement: ""
-          - sourceLabels: [__name__]
-            regex: "nginx_ingress_controller_.*"
-            targetLabel: exported_namespace
-            replacement: ""
-          - sourceLabels: [__name__]
-            regex: "nginx_ingress_controller_.*"
-            targetLabel: exported_service
-            replacement: ""
-    config:
-      # set global default file size limit to 100m
-      proxy-body-size: 100m
-      # hide Nginx version
-      server-tokens: "false"
-      # annotation risk level - needed because of nginx.ingress.kubernetes.io/configuration-snippet in ingress configuration
-      annotations-risk-level: "Critical"
-      # enable real IP (client IP)
-      enable-real-ip: "false" # set-by-customer
-      # passes the incoming X-Forwarded-* headers to upstreams
-      use-forwarded-headers: "false" # set-by-customer
-      # append the remote address to the X-Forwarded-For header instead of replacing it
-      compute-full-forwarded-for: "false" # set-by-customer
-      # customize http-snippet
-      http-snippet: |
-          # Qovery: declare variables with safe defaults
-          map $host $qovery_com_associated_service_id  { default ""; }
-          map $host $qovery_com_environment_id         { default ""; }
-      # customize log-format / set-by-customer
-      # default format can be found in the template: https://github.com/nginxinc/kubernetes-ingress/blob/v3.5.2/internal/configs/version1/nginx.tmpl#L44
-      # nginx_controller_log_format_upstream can be a json that why we pass it in the value file
-      log-format-escaping-json: "true"
-      log-format-escaping-none: "false" # set-by-customer
-      limit-req-status-code: "503" # set-by-customer
-      # Compression configuration (enabled by default)
-      enable-brotli: "true"
-      brotli-level: "6"
-      brotli-types: "text/xml text/yaml image/svg+xml application/x-font-ttf image/vnd.microsoft.icon application/x-font-opentype application/json font/eot application/vnd.ms-fontobject application/javascript font/otf application/xml application/xhtml+xml text/javascript application/x-javascript text/plain application/x-font-truetype application/xml+rss image/x-icon font/opentype text/css image/x-win-bitmap"
-      use-gzip: "true"
-      gzip-level: "6"
-      gzip-types: "text/xml text/yaml image/svg+xml application/x-font-ttf image/vnd.microsoft.icon application/x-font-opentype application/json font/eot application/vnd.ms-fontobject application/javascript font/otf application/xml application/xhtml+xml text/javascript application/x-javascript text/plain application/x-font-truetype application/xml+rss image/x-icon font/opentype text/css image/x-win-bitmap"
-    # PDB
-    maxUnavailable: 20%
-    ingressClassResource:
-      # -- Name of the IngressClass
-      name: nginx-qovery
-      # -- Create the IngressClass or not
+envoy-gateway-crd:
+  crds:
+    gatewayAPI:
       enabled: true
-    # the Ingress Class name to be used by Ingresses (use "nginx-qovery" for Qovery application/container deployments)
-    ingressClass: nginx-qovery
-    extraArgs:
-      # Kubernetes path of the default Cert-manager TLS certificate (if used)
-      default-ssl-certificate: "qovery/letsencrypt-acme-qovery-cert"
-    updateStrategy:
-      rollingUpdate:
-        # set the minimum acceptable number of unavailable pods during a rolling update
-        maxSurge: 1
-        maxUnavailable: 0
-    readinessProbe:
-      initialDelaySeconds: 15
-    # enable auoscaling if you want to scale the number of replicas based on CPU usage
-    autoscaling:
-      enabled: false # set-by-customer
-      minReplicas: 2 # set-by-customer
-      maxReplicas: 25 # set-by-customer
-      targetCPUUtilizationPercentage: 50 # set-by-customer
-    # required if you rely on a load balancer
-    # the controller mirrors the address of this service's endpoints to the load-balancer status of all Ingress objects it satisfies.
-    publishService:
+      channel: standard
+    envoyGateway:
       enabled: true
-    # set a load balancer if you want your Nginx to be publicly accessible
-    service:
-      enabled: true
-      annotations:
-        # Qovery managed DNS requires *.$domain (something like: *.<cluster_id>.<given_dns_name>)
-        external-dns.alpha.kubernetes.io/hostname: *domainWildcard
-      externalTrafficPolicy: "Local"
-      sessionAffinity: ""
-      healthCheckNodePort: 0
-    # force a connection for 30 seconds before shutting down, to avoid exiting too early
-    # and let time to AWS LB to catchup change in the topology
-    # When /wait-shutdown is called, the LB healthcheck /healthz endpoint return an error, but nginx keep processing request
-    lifecycle:
-      preStop:
-        exec:
-          command:
-            - sh
-            - -c
-            - (sleep 30 | nc localhost 80)&  sleep 1 ; /wait-shutdown
-    topologySpreadConstraints:
-      # Spread across availability zones for better high availability
-      - labelSelector:
-          matchLabels:
-            app.kubernetes.io/instance: nginx-ingress
-            app.kubernetes.io/component: controller
-        topologyKey: topology.kubernetes.io/zone
-        maxSkew: 1
-        whenUnsatisfiable: ScheduleAnyway
-      # Spread across nodes within zones (best-effort, won't block scheduling)
-      - labelSelector:
-          matchLabels:
-            app.kubernetes.io/instance: nginx-ingress
-            app.kubernetes.io/component: controller
-        topologyKey: kubernetes.io/hostname
-        maxSkew: 2
-        whenUnsatisfiable: ScheduleAnyway
+  
+envoy-gateway:
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: qovery.com/gateway-controller
+      logging:
+        level:
+          default: warn
+  # CRDs are installed by the dedicated envoy-gateway-crd chart.
+  crds:
+    enabled: false
+  service:
+    annotations: {} # set-by-engine
+  hpa:
+    enabled: false
+  deployment:
+    replicas: 1 # set-by-engine
+    envoyGateway:
+      resources:
+        limits:
+          cpu: set-by-customer
+          memory: set-by-customer
+        requests:
+          cpu: set-by-customer
+          memory: set-by-customer
+    pod:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: control-plane
+                    operator: In
+                    values:
+                      - envoy-gateway
+              topologyKey: kubernetes.io/hostname
+  podDisruptionBudget:
+    maxUnavailable: 1 # set-by-engine
+  
+qovery-gateway-class:
+  gatewayClass:
+    qoveryPublic:
+      enable: set-by-engine
+      accessLog:
+        format: set-by-engine
+      hpa:
+        enabled: set-by-engine
+        minReplicas: set-by-engine
+        maxReplicas: set-by-engine
+        targetCPUUtilizationPercentage: set-by-engine
+        targetMemoryUtilizationPercentage: set-by-engine
+      affinity: {}
+      tolerations: []
+    qoveryPrivate:
+      enable: set-by-engine
+      accessLog:
+        format: set-by-engine
+      hpa:
+        enabled: set-by-engine
+        minReplicas: set-by-engine
+        maxReplicas: set-by-engine
+        targetCPUUtilizationPercentage: set-by-engine
+        targetMemoryUtilizationPercentage: set-by-engine
+      affinity: {}
+      tolerations: []
+  
+qovery-cluster-gateway:
+  dns:
+    domain: set-by-customer
+    cloudflareProxied: false # set-by-customer
+  certManagerNamespace: "qovery" # set-by-customer
+  gateway:
+    qoveryPublic:
+      enable: true
+      enableProxyProtocol: false
+      proxyProtocol:
+        optional: true
+      withUnderscoresAction: "DropHeader"
+      xForwardedFor:
+        numberTrustedHops: null
+        trustedCIDRs: []
+      clientValidation:
+        caCertificates: []
+      timeout:
+        http:
+          streamIdleTimeoutSeconds: null
+      path:
+        disableMergeSlashes: false
+        escapedSlashesAction: "UnescapeAndRedirect"
+      customHttpErrors:
+        default: null
+      compression:
+        enable: true
+      defaultBackend:
+        enable: false
+        image: null
+        tag: null
+  envoyProxy:
+    qoveryPublic:
+      accessLog:
+        format: "set-by-engine"
+      provider:
+        kubernetes:
+          envoyDeployment:
+            pod:
+              affinity: {}
+              topologySpreadConstraints:
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/component: proxy
+                  topologyKey: topology.kubernetes.io/zone
+                  maxSkew: 1
+                  whenUnsatisfiable: ScheduleAnyway
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/component: proxy
+                  topologyKey: kubernetes.io/hostname
+                  maxSkew: 1
+                  whenUnsatisfiable: ScheduleAnyway
+              tolerations: []
+          envoyHpa: {}
+          envoyPDB:
+            maxUnavailable: 1
+          envoyService:
+            annotations: {}
+  # metrics are enabled only when prometheus is installed
+  metrics:
+    enabled: set-by-customer
+    podMonitor:
+      enabled: set-by-customer
+      additionalLabels:
+        release: kube-prometheus-stack
   
 external-dns:
-  # We have only 1 instance of external-dns, so creating pdb benefits nothing and may create unnecessary constraints
-  # i.e: Karpenter will take them into account
   pdb:
     create: false
-  # Make external DNS ignore this ingress https://github.com/kubernetes-sigs/external-dns/issues/1910#issuecomment-976371247
-  annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
-  # set domainFilters to the domain you want to manage: [*domain]
+  annotationFilter: external-dns.alpha.kubernetes.io/exclude notin (true)
   domainFilters: []
   triggerLoopOnEvent: true
   policy: sync
-  # avoid dns collision with other external-dns instances
   txtOwnerId: set-by-customer
   txtPrefix: set-by-customer
-  # set the number of replicas you want to use
   replicas: 1
-  # set the rolling update strategy you want to apply
   updateStrategy:
     type: set-by-customer
-  # remove if you don't want to use a custom image
   image:
     repository: public.ecr.aws/r3m4q3r9/pub-mirror-external-dns
-  # set the provider to use
   provider: set-by-customer
-  # dynamically populated by engine code based on provider
-  # For PDNS: pdns-server and pdns-api-key will be set
-  # For Cloudflare: cloudflare-proxied will be set
-  # For Route53: aws-zone-type and zone-id-filter (optional) will be set
-  extraArgs: {} #set-by-customer
-  # set the sources to watch
-  sources: [] # set-by-customer
-  # Enable Gateway API ListenerSet support when Gateway sources are watched
-  enableGatewayListenerSets: false # set-by-customer
-  # env variables are dynamically set by engine code based on provider
-  # For PDNS: PDNS_API_KEY will be set
-  # For Cloudflare: CF_API_TOKEN, CF_API_KEY, CF_API_EMAIL will be set
-  # For Route53: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION will be set
-  env: [] #set-by-customer
-  # SHA-256 checksum of DNS provider secrets to trigger pod restarts when secrets change
+  extraArgs: {}
+  sources:
+  - service
+  - ingress
+  - gateway-httproute
+  - gateway-grpcroute
+  enableGatewayListenerSets: true
+  env: []
   podAnnotations:
     qovery.com/external-dns-secret-checksum: set-by-customer
-  # set resources
   resources:
     limits:
       cpu: 50m
@@ -582,6 +592,15 @@ loki:
       # for simple usage, without high throughput, you can use the 1 replica only
       # note: replication is assured by the storage backend
       replication_factor: 1
+    server:
+      # Loki caps gRPC messages at 4MB by default. In SimpleScalable mode the querier streams
+      # query results back to the query-frontend over gRPC; large results (wide time ranges /
+      # high-cardinality streams) exceed 4MB and fail with:
+      #   "error notifying frontend about finished query"
+      #   err="grpc: received message larger than max (7522145 vs. 4194304)"
+      # Raise both directions to 25MB (applies to every component sharing this config).
+      grpc_server_max_recv_msg_size: 26214400
+      grpc_server_max_send_msg_size: 26214400
     ingester:
       chunk_idle_period: 3m
       chunk_block_size: 262144
@@ -589,6 +608,11 @@ loki:
     limits_config:
       ingestion_rate_mb: 20
       ingestion_burst_size_mb: 30
+      # Loki 3.x defaults max_line_size to 256KB (2.x was unlimited); apps emitting
+      # bigger single lines got their entries rejected with 400 and dropped by Alloy.
+      # Truncate instead of reject so oversized lines are kept up to 1MB.
+      max_line_size: 1MB
+      max_line_size_truncate: true
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       max_concurrent_tail_requests: 100
