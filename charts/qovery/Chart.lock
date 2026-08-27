@@ -63,4 +63,4 @@ dependencies:
   repository: file://charts/qovery-priority-class
   version: 0.2.0
 digest: sha256:51cb8960655fed583d5959cd67a4220e0a92f7cb7bb2631f33acf8a37a611939
-generated: "2026-08-24T09:56:00.580332079Z"
+generated: "2026-08-27T13:27:14.927346977Z"
