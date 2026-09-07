@@ -53,14 +53,11 @@ dependencies:
 - name: qovery-shell-agent
   repository: file://charts/qovery-shell-agent
   version: 0.1.0
-- name: qovery-operator
-  repository: file://charts/qovery-operator
-  version: 0.2.1
 - name: qovery-engine
   repository: file://charts/qovery-engine
   version: 0.0.0
 - name: qovery-priority-class
   repository: file://charts/qovery-priority-class
   version: 0.2.0
-digest: sha256:51cb8960655fed583d5959cd67a4220e0a92f7cb7bb2631f33acf8a37a611939
-generated: "2026-09-07T08:59:17.953024787Z"
+digest: sha256:43d2699073c556b786150d2b991ecc68002b9f373dc35ddb3af78b89a4559452
+generated: "2026-09-07T14:12:47.300911371Z"

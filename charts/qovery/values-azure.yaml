@@ -4,8 +4,6 @@ services:
       enabled: true
     qovery-shell-agent:
       enabled: true
-    qovery-operator:
-      enabled: false
     qovery-engine:
       enabled: true
     qovery-priority-class:
@@ -72,7 +70,6 @@ qovery:
   engineVersion: &engineVersion set-by-customer
   shellAgentVersion: &shellAgentVersion set-by-customer
   clusterAgentVersion: &clusterAgentVersion set-by-customer
-  operatorVersion: &operatorVersion set-by-customer
 qovery-cluster-agent:
   fullnameOverride: qovery-shell-agent
   image:
@@ -92,15 +89,6 @@ qovery-shell-agent:
     CLUSTER_ID: *clusterId
     CLUSTER_JWT_TOKEN: *jwtToken
     GRPC_SERVER: *agentGatewayUrl
-    ORGANIZATION_ID: *organizationId
-qovery-operator:
-  fullnameOverride: qovery-operator
-  image:
-    tag: *operatorVersion
-  environmentVariables:
-    CLUSTER_ID: *clusterId
-    CLUSTER_JWT_TOKEN: *jwtToken
-    GRPC_SERVER: *engineGatewayUrl
     ORGANIZATION_ID: *organizationId
 qovery-engine:
   image:
