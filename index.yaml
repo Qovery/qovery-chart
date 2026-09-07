@@ -3,6 +3,101 @@ entries:
   qovery:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-09-07T14:13:07.793664373Z"
+    dependencies:
+    - condition: services.aws.q-storageclass-aws.enabled
+      name: q-storageclass-aws
+      repository: file://charts/q-storageclass-aws
+      version: 0.1.0
+    - condition: services.gcp.q-storageclass-gcp.enabled
+      name: q-storageclass-gcp
+      repository: file://charts/q-storageclass-gcp
+      version: 0.1.0
+    - condition: services.scaleway.q-storageclass-scaleway.enabled
+      name: q-storageclass-scaleway
+      repository: file://charts/q-storageclass-scaleway
+      version: 0.1.0
+    - condition: services.azure.q-storageclass-azure.enabled
+      name: q-storageclass-azure
+      repository: file://charts/q-storageclass-azure
+      version: 0.1.0
+    - condition: services.aws.aws-load-balancer-controller.enabled
+      name: aws-load-balancer-controller
+      repository: file://charts/aws-load-balancer-controller
+      version: 3.4.2
+    - alias: envoy-gateway-crd
+      condition: services.ingress.envoy-gateway-crd.enabled
+      name: gateway-crds-helm
+      repository: file://charts/envoy-gateway-crd
+      version: v1.8.3
+    - alias: envoy-gateway
+      condition: services.ingress.envoy-gateway.enabled
+      name: gateway-helm
+      repository: file://charts/envoy-gateway
+      version: v1.8.3
+    - condition: services.ingress.qovery-gateway-class.enabled
+      name: qovery-gateway-class
+      repository: file://charts/qovery-gateway-class
+      version: 0.1.0
+    - condition: services.ingress.qovery-cluster-gateway.enabled
+      name: qovery-cluster-gateway
+      repository: file://charts/qovery-cluster-gateway
+      version: 0.1.0
+    - condition: services.dns.external-dns.enabled
+      name: external-dns
+      repository: file://charts/external-dns
+      version: 1.21.1
+    - condition: services.logging.alloy.enabled
+      name: alloy
+      repository: file://charts/alloy
+      version: 1.10.0
+    - condition: services.logging.loki.enabled
+      name: loki
+      repository: file://charts/loki
+      version: 6.55.0
+    - condition: services.certificates.cert-manager.enabled
+      name: cert-manager
+      repository: file://charts/cert-manager
+      version: v1.20.0
+    - condition: services.certificates.cert-manager-configs.enabled
+      name: cert-manager-configs
+      repository: file://charts/cert-manager-configs
+      version: 0.1.0
+    - condition: services.certificates.qovery-cert-manager-webhook.enabled
+      name: qovery-cert-manager-webhook
+      repository: file://charts/qovery-cert-manager-webhook
+      version: 0.2.0
+    - condition: services.observability.metrics-server.enabled
+      name: metrics-server
+      repository: file://charts/metrics-server
+      version: 3.13.0
+    - condition: services.qovery.qovery-cluster-agent.enabled
+      name: qovery-cluster-agent
+      repository: file://charts/qovery-cluster-agent
+      version: 0.1.0
+    - condition: services.qovery.qovery-shell-agent.enabled
+      name: qovery-shell-agent
+      repository: file://charts/qovery-shell-agent
+      version: 0.1.0
+    - condition: services.qovery.qovery-engine.enabled
+      name: qovery-engine
+      repository: file://charts/qovery-engine
+      version: 0.0.0
+    - condition: services.qovery.qovery-priority-class.enabled
+      name: qovery-priority-class
+      repository: file://charts/qovery-priority-class
+      version: 0.2.0
+    description: Qovery Helm chart - self managed version
+    digest: f3b09316e53912b8f0511de48145c337578889458e609e8906d05dfc2ffe2465
+    home: https://www.qovery.com/
+    icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
+    name: qovery
+    type: application
+    urls:
+    - https://Qovery.github.io/qovery-chart/qovery-2.0.0.tgz
+    version: 2.0.0
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-09-07T08:59:39.531399375Z"
     dependencies:
     - condition: services.aws.q-storageclass-aws.enabled
@@ -143,4 +238,4 @@ entries:
     urls:
     - https://Qovery.github.io/qovery-chart/qovery-shell-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-07T08:59:39.411759046Z"
+generated: "2026-09-07T14:13:07.674841565Z"
