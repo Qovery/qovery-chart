@@ -76,10 +76,6 @@ dependencies:
   condition: services.qovery.qovery-shell-agent.enabled
   version: 0.1.0
   repository: file://charts/qovery-shell-agent
-- name: qovery-operator
-  condition: services.qovery.qovery-operator.enabled
-  version: 0.2.1
-  repository: file://charts/qovery-operator
 - name: qovery-engine
   condition: services.qovery.qovery-engine.enabled
   version: 0.0.0
@@ -89,7 +85,7 @@ dependencies:
   version: 0.2.0
   repository: file://charts/qovery-priority-class
 type: application
-version: 1.0.0
+version: 2.0.0
 appVersion: 1.0.0
 home: https://www.qovery.com/
 icon: https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_square_new_logo.svg
