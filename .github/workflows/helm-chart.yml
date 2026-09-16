@@ -14,3 +14,5 @@ jobs:
         uses: stefanprodan/helm-gh-pages@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit_username: Qovery
+          commit_email: noreply@qovery.com
