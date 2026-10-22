@@ -16,10 +16,10 @@ dependencies:
   version: 3.4.2
 - name: gateway-crds-helm
   repository: file://charts/envoy-gateway-crd
-  version: v1.8.3
+  version: v1.9.1
 - name: gateway-helm
   repository: file://charts/envoy-gateway
-  version: v1.8.3
+  version: v1.9.1
 - name: qovery-gateway-class
   repository: file://charts/qovery-gateway-class
   version: 0.1.0
@@ -59,5 +59,5 @@ dependencies:
 - name: qovery-priority-class
   repository: file://charts/qovery-priority-class
   version: 0.2.0
-digest: sha256:43d2699073c556b786150d2b991ecc68002b9f373dc35ddb3af78b89a4559452
-generated: "2026-09-07T14:12:47.300911371Z"
+digest: sha256:44b2b1a0b12d639989d9d0dc4793a54c996f0656ffb6dd7dde62df4846556b22
+generated: "2026-10-22T09:28:05.623618276Z"

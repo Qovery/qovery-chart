@@ -107,6 +107,7 @@ qovery-engine:
     GRPC_SERVER: *engineGatewayUrl
     LIB_ROOT_DIR: /home/qovery/lib
     ORGANIZATION_ID: *organizationId
+    REDACT_SECRETS_IN_LOGS: 'true'
 envoy-gateway-crd:
   crds:
     gatewayAPI:
@@ -120,6 +121,8 @@ envoy-gateway:
     envoyGateway:
       gateway:
         controllerName: qovery.com/gateway-controller
+      extensionApis:
+        enableLua: true
       logging:
         level:
           default: warn

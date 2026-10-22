@@ -25,12 +25,12 @@ dependencies:
 - name: gateway-crds-helm
   alias: envoy-gateway-crd
   condition: services.ingress.envoy-gateway-crd.enabled
-  version: v1.8.3
+  version: v1.9.1
   repository: file://charts/envoy-gateway-crd
 - name: gateway-helm
   alias: envoy-gateway
   condition: services.ingress.envoy-gateway.enabled
-  version: v1.8.3
+  version: v1.9.1
   repository: file://charts/envoy-gateway
 - name: qovery-gateway-class
   condition: services.ingress.qovery-gateway-class.enabled
