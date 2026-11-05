@@ -107,6 +107,7 @@ qovery-engine:
     GRPC_SERVER: *engineGatewayUrl
     LIB_ROOT_DIR: /home/qovery/lib
     ORGANIZATION_ID: *organizationId
+    REDACT_SECRETS_IN_LOGS: 'true'
 envoy-gateway-crd:
   crds:
     gatewayAPI:
@@ -116,10 +117,17 @@ envoy-gateway-crd:
       enabled: true
   
 envoy-gateway:
+  global:
+    images:
+      envoyProxy:
+        # TODO(QOV-2454): Envoy Gateway does not yet ship Envoy v1.39.5; remove this override once it does.
+        image: docker.io/envoyproxy/envoy:distroless-v1.39.5
   config:
     envoyGateway:
       gateway:
         controllerName: qovery.com/gateway-controller
+      extensionApis:
+        enableLua: true
       logging:
         level:
           default: warn
@@ -579,7 +587,7 @@ loki:
     image:
       registry: set-by-customer
       repository: set-by-customer
-      tag: "3.7.1"
+      tag: "3.7.9"
     # set if you want to use authentication
     auth_enabled: false
     commonConfig:
@@ -796,6 +804,8 @@ cert-manager:
     kind: null # set-by-customer
     enableGatewayAPI: null # set-by-customer
     enableGatewayAPIListenerSet: null # set-by-customer
+  podAnnotations:
+    qovery.com/cert-manager-config-checksum: set-by-customer
   startupapicheck:
     jobAnnotations:
       helm.sh/hook: post-install,post-upgrade

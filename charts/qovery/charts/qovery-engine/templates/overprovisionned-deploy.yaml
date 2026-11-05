@@ -1,4 +1,10 @@
 {{- if .Values.overprovisionning.enabled }}
+{{- /* Warms the image builder pods run. Must equal BUILDKIT_VERSION in lib-engine/src/cmd/docker.rs: a test there fails otherwise */}}
+{{- $buildkitImage := "moby/buildkit:v0.34.1" }}
+{{- /* Engine gets BUILDER_* env only when buildContainer is enabled, else defaults to rootful */}}
+{{- if and .Values.buildContainer.enabled (eq (toString .Values.buildContainer.environmentVariables.BUILDER_ROOTLESS_ENABLED) "true") }}
+{{- $buildkitImage = printf "%s-rootless" $buildkitImage }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +12,7 @@ metadata:
   labels:
     app: qovery-engine-overprovisioning-amd64
 spec:
-  replicas: {{ .Values.overprovisionning.replicas }}
+  replicas: {{ .Values.overprovisionning.replicas.amd64 }}
   selector:
     matchLabels:
       app: qovery-engine-overprovisioning-amd64
@@ -28,7 +34,9 @@ spec:
       terminationGracePeriodSeconds: 1
       containers:
       - name: buildkit
-        image: moby/buildkit:buildx-stable-1
+        image: {{ $buildkitImage }}
+        # Only warms the image: rootless buildkitd crash-loops without the builder pod's unconfined profiles
+        command: ["/bin/sh", "-c", "tail -f /dev/null"]
       - name: qovery-engine-overprovisionning
         # use engine image to warm up the cache
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -43,7 +51,7 @@ metadata:
   labels:
     app: qovery-engine-overprovisioning-arm64
 spec:
-  replicas: {{ .Values.overprovisionning.replicas }}
+  replicas: {{ .Values.overprovisionning.replicas.arm64 }}
   selector:
     matchLabels:
       app: qovery-engine-overprovisioning-arm64
@@ -65,7 +73,9 @@ spec:
       terminationGracePeriodSeconds: 1
       containers:
       - name: buildkit
-        image: moby/buildkit:buildx-stable-1
+        image: {{ $buildkitImage }}
+        # Only warms the image: rootless buildkitd crash-loops without the builder pod's unconfined profiles
+        command: ["/bin/sh", "-c", "tail -f /dev/null"]
       - name: qovery-engine-overprovisionning
         # use engine image to warm up the cache
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
