@@ -107,6 +107,7 @@ qovery-engine:
     GRPC_SERVER: '*engineGatewayUrl'
     LIB_ROOT_DIR: /home/qovery/lib
     ORGANIZATION_ID: '*organizationId'
+    REDACT_SECRETS_IN_LOGS: 'true'
 ingress-nginx: {}
 external-dns: {}
 alloy: {}
